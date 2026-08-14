@@ -25,3 +25,8 @@ test("l’area riservata respinge un visitatore anonimo", async ({ page }) => {
   await expect(page).toHaveURL(/\/accesso$/);
   await expect(page.getByRole("heading", { name: "Bentornato" })).toBeVisible();
 });
+
+test("il catalogo admin è protetto", async ({ page }) => {
+  await page.goto("/area-riservata/catalogo");
+  await expect(page).toHaveURL(/\/accesso$/);
+});

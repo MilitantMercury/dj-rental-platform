@@ -13,7 +13,7 @@ export default function Home() {
             <span className="brand-mark" aria-hidden="true">ND</span>
             <span>Noleggio DJ</span>
           </a>
-          <span className="status"><span aria-hidden="true" /> Piattaforma in preparazione</span>
+          <div className="nav-actions"><a href="/accesso">Accedi</a><a className="nav-signup" href="/registrazione">Registrati</a></div>
         </nav>
 
         <div id="inizio" className="hero-content shell">

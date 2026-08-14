@@ -71,7 +71,10 @@ Implementare e mantenere la piattaforma descritta in `docs/Noleggio_DJ_Specifica
 - Test end-to-end: `npm run test:e2e`
 - Tutti i test non E2E: `npm test`
 - Build produzione: `npm run build`
-- Migrazioni database: da definire in E1 con la Supabase CLI
+- Avvio Supabase locale: `npm run supabase:start`
+- Reset e migrazioni locali: `npm run supabase:reset`
+- Test database/RLS: `npx supabase test db`
+- Anteprima migrazioni TEST: `npx supabase db push --linked --dry-run`
 
 ## Definition of Done
 

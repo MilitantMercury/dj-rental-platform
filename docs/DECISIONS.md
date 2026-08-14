@@ -28,6 +28,8 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | A-001 | 2026-08-13 | Provvisoria | Nome prodotto neutro “Noleggio DJ”; nessun dominio codificato. | E2, prima dei contenuti pubblici definitivi |
 | A-002 | 2026-08-13 | Provvisoria | UI E0 con font di sistema e palette neutra scura/ambra, senza asset di brand. | E2/E3, alla consegna del branding |
 | A-003 | 2026-08-13 | Provvisoria | Provider email dietro configurazione, senza dipendenza vendor in E0. | E11 |
+| A-004 | 2026-08-14 | Provvisoria | E1 viene sviluppata sul solo Supabase TEST `ghnlclmckxaoqptlkelr`; PRODUZIONE sarà creata separatamente prima del rilascio. | Prima del go-live |
+| A-005 | 2026-08-14 | Provvisoria | Il primo owner viene promosso una sola volta via SQL amministrativo; la registrazione pubblica crea esclusivamente clienti. | E1 |
 
 ## Decisioni aperte
 

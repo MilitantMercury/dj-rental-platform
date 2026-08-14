@@ -1,0 +1,2 @@
+-- E1 non inserisce utenti o dati personali. Gli utenti autenticabili di test
+-- vengono creati dai test o tramite Supabase Studio locale.

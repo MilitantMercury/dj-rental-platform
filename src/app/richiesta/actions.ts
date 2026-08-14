@@ -1,0 +1,16 @@
+"use server";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+const read = (data: FormData, key: string) => { const value = data.get(key); return typeof value === "string" ? value.trim() : ""; };
+const fail = (message: string): never => redirect(`/richiesta?message=${encodeURIComponent(message)}`);
+export async function createRequest(data: FormData) {
+  const eventType = read(data, "eventType"), eventDate = read(data, "eventDate"), eventEndDate = read(data, "eventEndDate"), venueName = read(data, "venueName"), venueAddress = read(data, "venueAddress"), logisticsMode = read(data, "logisticsMode"), notes = read(data, "notes");
+  if (!eventType || !eventDate || !eventEndDate || !venueName || !venueAddress || !["pickup", "delivery"].includes(logisticsMode) || data.get("privacy") !== "on") fail("Completa i dati obbligatori e accetta l’informativa privacy.");
+  if (eventEndDate < eventDate) fail("La data di fine non può precedere quella di inizio.");
+  const supabase = await createClient(); const { data: authData } = await supabase.auth.getUser(); const user = authData.user;
+  if (!user) return fail("Devi accedere con un indirizzo email verificato.");
+  if (!user.email_confirmed_at) return fail("Devi accedere con un indirizzo email verificato.");
+  const { error } = await supabase.from("requests").insert({ request_code: `R-${crypto.randomUUID().slice(0, 8).toUpperCase()}`, customer_user_id: user.id, event_type: eventType, event_date: eventDate, event_end_date: eventEndDate, venue_name: venueName, venue_address: venueAddress, logistics_mode: logisticsMode as "pickup" | "delivery", customer_notes: notes, privacy_accepted_at: new Date().toISOString(), status: "received" });
+  if (error) fail("Non è stato possibile inviare la richiesta. Riprova.");
+  redirect("/area-riservata?message=request-sent");
+}

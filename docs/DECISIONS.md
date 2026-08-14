@@ -31,6 +31,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | A-004 | 2026-08-14 | Provvisoria | E1 viene sviluppata sul solo Supabase TEST `ghnlclmckxaoqptlkelr`; PRODUZIONE sarà creata separatamente prima del rilascio. | Prima del go-live |
 | A-005 | 2026-08-14 | Provvisoria | Il primo owner viene promosso una sola volta via SQL amministrativo; la registrazione pubblica crea esclusivamente clienti. | E1 |
 | A-006 | 2026-08-14 | Provvisoria | E2 usa prezzo indicativo in centesimi e immagini come metadati di Storage; il bucket e l'upload UI saranno rifiniti prima del catalogo pubblico. | E2/E3 |
+| A-007 | 2026-08-14 | Provvisoria | E3 usa un bucket pubblico `catalog` per immagini non riservate; i file di pratiche future resteranno in bucket privati separati. | E5/E13 |
 
 ## Decisioni aperte
 

@@ -30,3 +30,9 @@ test("il catalogo admin è protetto", async ({ page }) => {
   await page.goto("/area-riservata/catalogo");
   await expect(page).toHaveURL(/\/accesso$/);
 });
+
+test("il catalogo pubblico è visitabile senza autenticazione", async ({ page }) => {
+  await page.goto("/catalogo");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Attrezzatura e servizi");
+  await expect(page.getByRole("heading", { name: "Attrezzatura", exact: true })).toBeVisible();
+});

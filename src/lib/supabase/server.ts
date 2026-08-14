@@ -11,3 +11,5 @@ export async function createClient() {
     setAll: (items) => { try { items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch { /* Il proxy aggiorna i cookie per i Server Component. */ } },
   }});
 }
+
+export const createServerSupabaseClient = createClient;

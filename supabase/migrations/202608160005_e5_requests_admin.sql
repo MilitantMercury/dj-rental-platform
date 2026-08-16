@@ -1,0 +1,6 @@
+create table public.request_status_history (id uuid primary key default gen_random_uuid(), request_id uuid not null references public.requests(id) on delete restrict, previous_status text, new_status text not null, changed_by uuid not null references public.profiles(user_id) on delete restrict, note text not null default '', created_at timestamptz not null default now());
+create table public.request_internal_notes (id uuid primary key default gen_random_uuid(), request_id uuid not null references public.requests(id) on delete restrict, author_id uuid not null references public.profiles(user_id) on delete restrict, body text not null, created_at timestamptz not null default now());
+alter table public.request_status_history enable row level security; alter table public.request_internal_notes enable row level security;
+create policy "staff status history" on public.request_status_history for all to authenticated using ((select public.current_staff_role()) is not null) with check ((select public.current_staff_role()) is not null);
+create policy "owner internal notes" on public.request_internal_notes for all to authenticated using ((select public.current_staff_role()) = 'owner') with check ((select public.current_staff_role()) = 'owner');
+grant select, insert on public.request_status_history, public.request_internal_notes to authenticated;

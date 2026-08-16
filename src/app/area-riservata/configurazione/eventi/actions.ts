@@ -1,0 +1,5 @@
+"use server";
+import { revalidatePath } from "next/cache"; import { redirect } from "next/navigation"; import { createClient } from "@/lib/supabase/server";
+const value=(d:FormData,k:string)=>String(d.get(k)??"").trim();
+export async function createEventType(d:FormData){const s=await createClient();const{data}=await s.auth.getUser();if(!data.user)return redirect("/accesso");const{data:staff}=await s.from("staff_profiles").select("role").eq("user_id",data.user.id).maybeSingle();if(staff?.role!=="owner")return redirect("/area-riservata");const name=value(d,"name");if(name)await s.from("event_types").insert({name,description:value(d,"description"),sort_order:Number(d.get("sortOrder")??0),active:true});revalidatePath("/area-riservata/configurazione/eventi");revalidatePath("/richiesta");}
+export async function toggleEventType(d:FormData){const s=await createClient();const id=value(d,"id"),active=value(d,"active")==="true";await s.from("event_types").update({active:!active}).eq("id",id);revalidatePath("/area-riservata/configurazione/eventi");revalidatePath("/richiesta");}

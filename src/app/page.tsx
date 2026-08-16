@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { UserMenu } from "@/components/user-menu";
 
 const services = [
   { number: "01", title: "Attrezzatura selezionata", text: "Impianti audio, console, luci e accessori scelti in base allo spazio e al tipo di evento." },
@@ -8,28 +5,15 @@ const services = [
   { number: "03", title: "Proposta su misura", text: "Una richiesta chiara, verificata dal gestore prima di qualsiasi conferma definitiva." },
 ] as const;
 
-export default async function Home() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: staff } = user ? await supabase.from("staff_profiles").select("role").eq("user_id", user.id).maybeSingle() : { data: null };
-  const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : "Cliente";
-  const displayName = typeof user?.user_metadata?.first_name === "string" && user.user_metadata.first_name ? user.user_metadata.first_name : user?.email?.split("@")[0];
+export default function Home() {
   return (
     <main>
       <section className="hero" aria-labelledby="hero-title">
-        <nav className="nav shell" aria-label="Navigazione principale">
-          <a className="brand" href="#inizio" aria-label="Noleggio DJ, pagina iniziale">
-            <span className="brand-mark" aria-hidden="true">ND</span>
-            <span>Noleggio DJ</span>
-          </a>
-          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <UserMenu name={displayName ?? "Account"} role={role} /> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
-        </nav>
-
         <div id="inizio" className="hero-content shell">
           <p className="eyebrow">Attrezzatura e servizi professionali</p>
           <h1 id="hero-title">Il tuo evento,<br /><em>con il suono giusto.</em></h1>
           <p className="intro">Stiamo preparando un modo più semplice per raccontarci il tuo evento e ricevere una proposta costruita sulle tue esigenze.</p>
-          <a className="cta" href="#come-funziona">Scopri come funzionerà <span aria-hidden="true">↓</span></a>
+          <div className="hero-actions"><a className="cta" href="/catalogo">Esplora il catalogo <span aria-hidden="true">→</span></a><a className="cta cta-secondary" href="#come-funziona">Come funziona <span aria-hidden="true">↓</span></a></div>
         </div>
         <div className="signal" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></div>
       </section>

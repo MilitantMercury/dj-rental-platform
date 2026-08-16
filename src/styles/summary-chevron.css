@@ -1,0 +1,1 @@
+.summary-disabled{cursor:default!important}.chevron{display:inline-block;width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s ease}.chevron.is-open{transform:rotate(225deg) translate(-1px,-1px)}

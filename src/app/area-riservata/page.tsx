@@ -9,5 +9,5 @@ export default async function AreaRiservata() {
   if (!user) redirect("/accesso");
   const { data: staff } = await supabase.from("staff_profiles").select("role, display_name").eq("user_id", user.id).maybeSingle();
   const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : "Cliente";
-  return <main className="dashboard shell"><p className="eyebrow dark">Area riservata</p><h1>Ciao.</h1><div className="dashboard-card"><p>Accesso verificato come <strong>{role}</strong>.</p><p>{user.email}</p>{staff?.role === "owner" ? <a className="dashboard-link" href="/area-riservata/catalogo">Gestisci catalogo →</a> : null}<form action={signOut}><button type="submit">Esci</button></form></div></main>;
+  return <main className="dashboard shell"><p className="eyebrow dark">Area riservata</p><h1>Ciao.</h1><div className="dashboard-card"><p>Accesso verificato come <strong>{role}</strong>.</p><p>{user.email}</p>{staff?.role ? <a className="dashboard-link" href="/area-riservata/pratiche">Gestisci pratiche →</a> : null}{staff?.role === "owner" ? <a className="dashboard-link" href="/area-riservata/catalogo">Gestisci catalogo →</a> : null}<form action={signOut}><button type="submit">Esci</button></form></div></main>;
 }

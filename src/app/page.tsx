@@ -11,6 +11,8 @@ const services = [
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { data: staff } = user ? await supabase.from("staff_profiles").select("role").eq("user_id", user.id).maybeSingle() : { data: null };
+  const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : "Cliente";
   const displayName = typeof user?.user_metadata?.first_name === "string" && user.user_metadata.first_name ? user.user_metadata.first_name : user?.email?.split("@")[0];
   return (
     <main>
@@ -20,7 +22,7 @@ export default async function Home() {
             <span className="brand-mark" aria-hidden="true">ND</span>
             <span>Noleggio DJ</span>
           </a>
-          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <UserMenu name={displayName ?? "Account"} /> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
+          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <UserMenu name={displayName ?? "Account"} role={role} /> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
         </nav>
 
         <div id="inizio" className="hero-content shell">

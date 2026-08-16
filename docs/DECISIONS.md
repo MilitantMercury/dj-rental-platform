@@ -32,6 +32,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | A-005 | 2026-08-14 | Provvisoria | Il primo owner viene promosso una sola volta via SQL amministrativo; la registrazione pubblica crea esclusivamente clienti. | E1 |
 | A-006 | 2026-08-14 | Provvisoria | E2 usa prezzo indicativo in centesimi e immagini come metadati di Storage; il bucket e l'upload UI saranno rifiniti prima del catalogo pubblico. | E2/E3 |
 | A-007 | 2026-08-14 | Provvisoria | E3 usa un bucket pubblico `catalog` per immagini non riservate; i file di pratiche future resteranno in bucket privati separati. | E5/E13 |
+| A-008 | 2026-08-16 | Approvata | Il carrello è sincronizzato lato server per utenti autenticati; gli anonimi usano un carrello locale che viene unito al login. Il carrello non blocca disponibilità e non costituisce una prenotazione. | E4/E7 |
 
 ## Decisioni aperte
 

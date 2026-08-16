@@ -9,6 +9,7 @@ type ServiceRow = { id: string; category_id: string | null; name: string; slug: 
 type ProductImageRow = { id: string; product_id: string; storage_path: string; alt_text: string; sort_order: number; created_at: string };
 type RequestRow = { id: string; request_code: string; customer_user_id: string; status: "received" | "in_review" | "rejected" | "cancelled"; event_type: string; event_date: string; event_end_date: string; venue_name: string; venue_address: string; logistics_mode: "pickup" | "delivery"; customer_notes: string; privacy_accepted_at: string; created_at: string; updated_at: string };
 type RequestStatusHistoryRow = { id: string; request_id: string; previous_status: string | null; new_status: string; changed_by: string; note: string; created_at: string };
+type QuoteResponseRow = { id: string; revision_id: string; customer_user_id: string; outcome: "accepted" | "rejected" | "changes_requested"; comment: string; created_at: string };
 type TableShape<Row> = { Row: Row; Insert: Omit<Row, "id" | "created_at" | "updated_at"> & { id?: string; created_at?: string; updated_at?: string }; Update: Partial<Omit<Row, "id">>; Relationships: [] };
 
 export type Database = {
@@ -23,6 +24,7 @@ export type Database = {
       product_images: TableShape<ProductImageRow>;
       requests: TableShape<RequestRow>;
       request_status_history: TableShape<RequestStatusHistoryRow>;
+      quote_responses: TableShape<QuoteResponseRow>;
     };
     Views: Record<string, never>;
     Functions: { current_staff_role: { Args: Record<PropertyKey, never>; Returns: "collaborator" | "owner" | null } };

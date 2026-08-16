@@ -23,7 +23,7 @@ export async function signIn(data: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email: read(data, "email"), password: read(data, "password") });
   if (error) fail("/accesso", "Email o password non validi, oppure email non ancora verificata.");
-  redirect("/area-riservata");
+  redirect("/");
 }
 
 export async function requestPasswordReset(data: FormData) {

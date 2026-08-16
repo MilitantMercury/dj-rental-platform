@@ -1,10 +1,16 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+
 const services = [
   { number: "01", title: "Attrezzatura selezionata", text: "Impianti audio, console, luci e accessori scelti in base allo spazio e al tipo di evento." },
   { number: "02", title: "Supporto professionale", text: "Servizi tecnici e DJ coordinati con le necessità reali della tua serata." },
   { number: "03", title: "Proposta su misura", text: "Una richiesta chiara, verificata dal gestore prima di qualsiasi conferma definitiva." },
 ] as const;
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const displayName = typeof user?.user_metadata?.first_name === "string" && user.user_metadata.first_name ? user.user_metadata.first_name : user?.email?.split("@")[0];
   return (
     <main>
       <section className="hero" aria-labelledby="hero-title">
@@ -13,7 +19,7 @@ export default function Home() {
             <span className="brand-mark" aria-hidden="true">ND</span>
             <span>Noleggio DJ</span>
           </a>
-          <div className="nav-actions"><a href="/catalogo">Catalogo</a><a href="/accesso">Accedi</a><a className="nav-signup" href="/registrazione">Registrati</a></div>
+          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <><Link href="/area-riservata">{displayName}</Link><Link className="nav-signup" href="/area-riservata">Area riservata</Link></> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
         </nav>
 
         <div id="inizio" className="hero-content shell">

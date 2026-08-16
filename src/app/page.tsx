@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { UserMenu } from "@/components/user-menu";
 
 const services = [
   { number: "01", title: "Attrezzatura selezionata", text: "Impianti audio, console, luci e accessori scelti in base allo spazio e al tipo di evento." },
@@ -19,7 +20,7 @@ export default async function Home() {
             <span className="brand-mark" aria-hidden="true">ND</span>
             <span>Noleggio DJ</span>
           </a>
-          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <><Link href="/area-riservata">{displayName}</Link><Link className="nav-signup" href="/area-riservata">Area riservata</Link></> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
+          <div className="nav-actions"><Link href="/catalogo">Catalogo</Link>{user ? <UserMenu name={displayName ?? "Account"} /> : <><Link href="/accesso">Accedi</Link><Link className="nav-signup" href="/registrazione">Registrati</Link></>}</div>
         </nav>
 
         <div id="inizio" className="hero-content shell">

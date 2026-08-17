@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { FormEventHandler, ReactNode } from "react";
 import Link from "next/link";
 
 export function AuthForm({ title, intro, action, children, message }: { title: string; intro: string; action: (data: FormData) => void | Promise<void>; children: ReactNode; message?: string }) {
@@ -9,6 +9,10 @@ export function AuthForm({ title, intro, action, children, message }: { title: s
   </section></main>;
 }
 
-export function Field({ label, name, type = "text", autoComplete, minLength }: { label: string; name: string; type?: string; autoComplete?: string; minLength?: number }) {
-  return <label>{label}<input name={name} type={type} autoComplete={autoComplete} minLength={minLength} required /></label>;
+export function FieldLabel({ children, required = true }: { children: ReactNode; required?: boolean }) {
+  return <span className="field-label">{children}{required && <span className="required-mark" aria-hidden="true">*</span>}</span>;
+}
+
+export function Field({ label, name, type = "text", autoComplete, minLength, maxLength, required = true, onInput }: { label: string; name: string; type?: string; autoComplete?: string; minLength?: number; maxLength?: number; required?: boolean; onInput?: FormEventHandler<HTMLInputElement> }) {
+  return <label><FieldLabel required={required}>{label}</FieldLabel><input name={name} type={type} autoComplete={autoComplete} minLength={minLength} maxLength={maxLength} required={required} onInput={onInput} /></label>;
 }

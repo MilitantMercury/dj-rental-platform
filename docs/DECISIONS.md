@@ -20,6 +20,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | D-012 | 2026-08-13 | Email verificata prima dell'invio di una richiesta. | Garantisce un recapito valido e limita gli abusi. |
 | D-013 | 2026-08-13 | Lingua italiana e valuta EUR. | Contesto operativo approvato. |
 | D-014 | 2026-08-13 | Nessun pagamento online, fatturazione elettronica, app nativa o magazzino serializzato nell'MVP. | Confini espliciti dell'MVP. |
+| D-015 | 2026-08-17 | In registrazione il cliente sceglie tra privato e Partita IVA. Il privato fornisce nome, cognome e codice fiscale; la Partita IVA fornisce ragione sociale, partita IVA e almeno uno tra PEC e codice destinatario. Telefono e indirizzo sono obbligatori per entrambi. | Raccoglie subito i dati identificativi e di contatto necessari, mostrando soltanto i campi pertinenti al tipo di cliente. |
 
 ## Assunzioni conservative correnti
 
@@ -32,7 +33,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | A-005 | 2026-08-14 | Provvisoria | Il primo owner viene promosso una sola volta via SQL amministrativo; la registrazione pubblica crea esclusivamente clienti. | E1 |
 | A-006 | 2026-08-14 | Provvisoria | E2 usa prezzo indicativo in centesimi e immagini come metadati di Storage; il bucket e l'upload UI saranno rifiniti prima del catalogo pubblico. | E2/E3 |
 | A-007 | 2026-08-14 | Provvisoria | E3 usa un bucket pubblico `catalog` per immagini non riservate; i file di pratiche future resteranno in bucket privati separati. | E5/E13 |
-| A-008 | 2026-08-16 | Approvata | Il carrello è sincronizzato lato server per utenti autenticati; gli anonimi usano un carrello locale che viene unito al login. Il carrello non blocca disponibilità e non costituisce una prenotazione. | E4/E7 |
+| A-008 | 2026-08-16 | Approvata | Il carrello è sincronizzato lato server per utenti autenticati. Gli anonimi possono consultare il catalogo, ma devono registrarsi o accedere prima di aggiungere articoli e generare una richiesta. Il carrello non blocca disponibilità e non costituisce una prenotazione. | E4/E7 |
 
 ## Decisioni aperte
 

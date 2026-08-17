@@ -1,0 +1,3 @@
+"use client";
+import { useState } from "react";
+export function EventTypeField({ types }: { types: string[] }) { const [other, setOther] = useState(false); return <div className="event-type-group"><label>Tipo di evento<select name="eventType" required defaultValue="" onChange={(event) => setOther(event.target.value === "Altro")}><option value="" disabled>Seleziona una tipologia</option>{types.map((type)=><option key={type} value={type}>{type}</option>)}<option value="Altro">Altro</option></select></label>{other && <label>Specifica il tipo di evento<input name="otherEventType" required maxLength={100} placeholder="Descrivi il tipo di evento" /></label>}</div>; }

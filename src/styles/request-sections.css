@@ -1,0 +1,18 @@
+.request-form { gap: 24px; }
+.request-section { margin: 0; padding: 24px; border: 1px solid #363630; background: #20201c; }
+.request-section-title { margin: 0 0 20px; color: var(--accent); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.request-event-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+.request-location-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; }
+.request-section textarea { width: 100%; resize: vertical; }
+.request-logistics-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.request-choice { display: flex !important; align-items: center; gap: 10px; padding: 14px; border: 1px solid #4b4a43; background: #11110f; cursor: pointer; }
+.request-choice input { width: auto; margin: 0; accent-color: var(--accent); }
+.request-notes { display: grid; gap: 8px; }
+.request-footer { display: grid; gap: 18px; }
+.request-privacy { display: flex !important; align-items: flex-start; gap: 10px; line-height: 1.45; }
+.request-privacy input { width: auto; margin-top: 3px; accent-color: var(--accent); }
+.request-submit { width: 100%; }
+@media (max-width: 760px) {
+  .request-event-grid, .request-location-grid, .request-logistics-options { grid-template-columns: 1fr; }
+  .request-section { padding: 18px; }
+}

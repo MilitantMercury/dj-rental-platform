@@ -1,0 +1,1 @@
+.cart-list{align-self:start;align-content:start;gap:10px}.cart-item{min-height:0;padding:18px 20px;align-items:center;border-radius:2px;box-shadow:0 2px 0 rgba(17,17,15,.04)}.cart-item h2{font-size:20px;margin:5px 0 0}.cart-item small{font-size:10px}.cart-item>div{display:grid;gap:3px}.cart-item p{margin:0}.cart-remove{flex:none}

@@ -1,0 +1,15 @@
+.practices-page { padding-top: 54px; padding-bottom: 100px; }
+.practices-header { display:flex; justify-content:space-between; align-items:end; gap:24px; margin:28px 0 42px; }
+.practices-header h1 { margin:12px 0 0; font-size:clamp(48px,7vw,88px); }
+.practices-count { padding:18px 22px; border:1px solid #c9c4b8; background:#ebe6dc; font-weight:800; }
+.practices-count strong { display:block; font-size:32px; }
+.practice-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.practice-card { display:grid; gap:18px; min-height:230px; padding:26px; border:1px solid #c9c4b8; background:#fffdf8; }
+.practice-card-top { display:flex; justify-content:space-between; gap:16px; align-items:start; }
+.card-kicker { color:#77736a; font-size:11px; font-weight:800; letter-spacing:.16em; }
+.practice-card h2 { margin:0; font-size:26px; letter-spacing:-.04em; }
+.practice-card p { margin:0; color:#656159; line-height:1.55; }
+.practice-card-bottom { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:auto; padding-top:16px; border-top:1px solid #e2ddd2; }
+.practice-card a { font-weight:800; text-decoration:none; }
+.status-badge { display:inline-flex; width:max-content; padding:7px 10px; background:#e9e0d2; color:#5e594f; font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+@media(max-width:700px){.practices-header{align-items:start;flex-direction:column}.practice-list{grid-template-columns:1fr}.practices-count{width:100%}}

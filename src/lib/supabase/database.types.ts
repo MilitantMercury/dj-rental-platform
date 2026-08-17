@@ -172,6 +172,9 @@ export type Database = {
           address: string | null
           company_name: string | null
           created_at: string
+          customer_type: string
+          pec: string | null
+          recipient_code: string | null
           tax_code: string | null
           updated_at: string
           user_id: string
@@ -181,6 +184,9 @@ export type Database = {
           address?: string | null
           company_name?: string | null
           created_at?: string
+          customer_type?: string
+          pec?: string | null
+          recipient_code?: string | null
           tax_code?: string | null
           updated_at?: string
           user_id: string
@@ -190,6 +196,9 @@ export type Database = {
           address?: string | null
           company_name?: string | null
           created_at?: string
+          customer_type?: string
+          pec?: string | null
+          recipient_code?: string | null
           tax_code?: string | null
           updated_at?: string
           user_id?: string
@@ -323,6 +332,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           first_name: string
           last_name: string
           phone: string | null
@@ -331,6 +341,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           first_name?: string
           last_name?: string
           phone?: string | null
@@ -339,6 +350,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           first_name?: string
           last_name?: string
           phone?: string | null
@@ -548,6 +560,44 @@ export type Database = {
           },
           {
             foreignKeyName: "request_internal_notes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      request_items: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          item_id: string
+          item_type: string
+          quantity: number
+          request_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          item_id: string
+          item_type: string
+          quantity?: number
+          request_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          quantity?: number
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_items_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "requests"

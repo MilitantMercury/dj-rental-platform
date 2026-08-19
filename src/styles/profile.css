@@ -15,7 +15,9 @@
 .profile-fields input, .profile-fields select { width: 100%; min-width: 0; padding: 13px 14px; border: 1px solid #c9c4b8; background: var(--paper); color: var(--ink); font: inherit; }
 .profile-fields input:focus, .profile-fields select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
 .profile-fields input[readonly] { color: #77736a; background: #ebe6dc; cursor: not-allowed; }
+.profile-country-fixed { display:flex; align-items:center; gap:10px; width:100%; padding:13px 14px; border:1px solid #c9c4b8; background:#ebe6dc; color:#48463f; }
 .profile-field-full { grid-column: 1 / -1; }
+.profile-legacy-address { margin: 0; padding: 12px 14px; border-left: 3px solid var(--accent); background: #ebe6dc; color: #656159; font-size: 13px; line-height: 1.5; }
 .profile-fields small { color: #77736a; line-height: 1.5; }
 .profile-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 30px; background: #e9e0d2; }
 .profile-form-footer p { margin: 0; color: #656159; font-size: 13px; }

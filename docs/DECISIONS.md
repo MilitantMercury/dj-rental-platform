@@ -21,6 +21,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | D-013 | 2026-08-13 | Lingua italiana e valuta EUR. | Contesto operativo approvato. |
 | D-014 | 2026-08-13 | Nessun pagamento online, fatturazione elettronica, app nativa o magazzino serializzato nell'MVP. | Confini espliciti dell'MVP. |
 | D-015 | 2026-08-17 | In registrazione il cliente sceglie tra privato e Partita IVA. Il privato fornisce nome, cognome e codice fiscale; la Partita IVA fornisce ragione sociale, partita IVA e almeno uno tra PEC e codice destinatario. Telefono e indirizzo sono obbligatori per entrambi. | Raccoglie subito i dati identificativi e di contatto necessari, mostrando soltanto i campi pertinenti al tipo di cliente. |
+| D-016 | 2026-08-19 | L’indirizzo anagrafico del cliente è raccolto in via/piazza, civico, CAP, comune, provincia e nazione (Italia predefinita). Gli indirizzi liberi esistenti restano consultabili fino al successivo aggiornamento del profilo. | Consente dati più ordinati e verificabili senza perdere informazioni degli account già creati. |
 
 ## Assunzioni conservative correnti
 
@@ -34,6 +35,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | A-006 | 2026-08-14 | Provvisoria | E2 usa prezzo indicativo in centesimi e immagini come metadati di Storage; il bucket e l'upload UI saranno rifiniti prima del catalogo pubblico. | E2/E3 |
 | A-007 | 2026-08-14 | Provvisoria | E3 usa un bucket pubblico `catalog` per immagini non riservate; i file di pratiche future resteranno in bucket privati separati. | E5/E13 |
 | A-008 | 2026-08-16 | Approvata | Il carrello è sincronizzato lato server per utenti autenticati. Gli anonimi possono consultare il catalogo, ma devono registrarsi o accedere prima di aggiungere articoli e generare una richiesta. Il carrello non blocca disponibilità e non costituisce una prenotazione. | E4/E7 |
+| A-009 | 2026-08-19 | Provvisoria | Il primo rilascio di E7 pubblica il preventivo nell’area riservata; il PDF e la relativa numerazione sono differiti finché non saranno definiti come requisito obbligatorio. | Prima del go-live |
 
 ## Decisioni aperte
 

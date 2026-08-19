@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EventTypeField } from "@/components/event-type-field";
+import { ITALIAN_PROVINCES } from "@/lib/domain/italian-provinces";
 import { createClient } from "@/lib/supabase/server";
 import { createRequest } from "./actions";
 
@@ -22,8 +23,13 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
         <label>Data fine<input name="eventEndDate" type="date" required /></label>
       </div></section>
       <fieldset className="request-section"><legend className="request-section-title">Location</legend><div className="request-location-grid">
-        <label>Nome della location<input name="venueName" required maxLength={160} placeholder="Es. Villa Rossi" /></label>
-        <label>Indirizzo della location<textarea className="venue-address" name="venueAddress" required maxLength={300} rows={2} placeholder="Via, numero civico, città" /></label>
+        <label className="request-location-full">Nome della location<input name="venueName" required maxLength={160} placeholder="Es. Villa Rossi" /></label>
+        <label>Via / piazza<input name="venueStreet" autoComplete="address-line1" required maxLength={160} /></label>
+        <label>Numero civico<input name="venueNumber" autoComplete="address-line2" required maxLength={20} /></label>
+        <label>CAP<input name="venuePostalCode" autoComplete="postal-code" required maxLength={5} pattern="[0-9]{5}" title="Inserisci 5 cifre." /></label>
+        <label>Comune<input name="venueCity" autoComplete="address-level2" required maxLength={100} /></label>
+        <label>Provincia<select name="venueProvince" autoComplete="address-level1" required defaultValue=""><option value="" disabled>Seleziona</option>{ITALIAN_PROVINCES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}</select></label>
+        <label>Nazione<span className="country-fixed" aria-label="Nazione: Italia"><svg className="country-flag" viewBox="0 0 3 2" aria-hidden="true" focusable="false"><path fill="#009246" d="M0 0h1v2H0z" /><path fill="#fff" d="M1 0h1v2H1z" /><path fill="#ce2b37" d="M2 0h1v2H2z" /></svg>Italia</span><input type="hidden" name="venueCountry" value="Italia" /></label>
       </div></fieldset>
       <fieldset className="request-section"><legend className="request-section-title">Logistica</legend><div className="request-logistics-options">
         <label>Consegna<select name="deliveryResponsibility" defaultValue="customer"><option value="owner">A carico del gestore</option><option value="customer">A carico del cliente</option></select></label>

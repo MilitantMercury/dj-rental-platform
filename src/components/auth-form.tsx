@@ -13,6 +13,6 @@ export function FieldLabel({ children, required = true }: { children: ReactNode;
   return <span className="field-label">{children}{required && <span className="required-mark" aria-hidden="true">*</span>}</span>;
 }
 
-export function Field({ label, name, type = "text", autoComplete, minLength, maxLength, required = true, onInput }: { label: string; name: string; type?: string; autoComplete?: string; minLength?: number; maxLength?: number; required?: boolean; onInput?: FormEventHandler<HTMLInputElement> }) {
-  return <label><FieldLabel required={required}>{label}</FieldLabel><input name={name} type={type} autoComplete={autoComplete} minLength={minLength} maxLength={maxLength} required={required} onInput={onInput} /></label>;
+export function Field({ label, name, type = "text", autoComplete, minLength, maxLength, pattern, title, defaultValue, required = true, onInput }: { label: string; name: string; type?: string; autoComplete?: string; minLength?: number; maxLength?: number; pattern?: string; title?: string; defaultValue?: string; required?: boolean; onInput?: FormEventHandler<HTMLInputElement> }) {
+  return <label><FieldLabel required={required}>{label}</FieldLabel><input name={name} type={type} autoComplete={autoComplete} minLength={minLength} maxLength={maxLength} pattern={pattern} title={title} defaultValue={defaultValue} required={required} onInput={onInput} /></label>;
 }

@@ -8,7 +8,8 @@
 .request-event-grid > *, .event-type-group > * { min-width: 0; }
 .request-event-grid label { display: grid; gap: 8px; }
 .event-type-group { display: grid; gap: 16px; min-width: 0; }
-.request-location-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; }
+.request-location-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }.request-location-grid .request-location-full { grid-column: 1 / -1; }
+.request-card .request-location-grid label { display:grid !important; align-items:stretch; gap:8px !important; }
 .request-section textarea { width: 100%; resize: vertical; }
 .request-section textarea.venue-address { min-height: 72px; }
 .request-logistics-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -76,12 +77,14 @@
 .customer-detail-list dd { max-width:62%; overflow-wrap:anywhere; }
 .practice-detail-notes { grid-column:1/-1; }
 .practice-status-panel { margin-bottom:16px; padding:24px 28px; border:1px solid #c9c4b8; background:#ebe6dc; }
+.practice-next-action { border-left:4px solid var(--accent); background:#fffdf8; }.practice-next-action h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-next-action > p:not(.detail-label) { max-width:680px; margin:0; color:#656159; line-height:1.55; }.practice-next-action form { margin-top:18px; }.practice-panel-link { display:inline-flex; padding:13px 18px; background:var(--accent); color:#11110f; font-weight:900; text-decoration:none; }
 .practice-detail-page .auth-message { color:#fff; background:#292922; }
 .practice-status-panel form { display:grid; grid-template-columns:1fr 1.5fr auto; gap:14px; align-items:end; }
 .practice-status-panel label { display:grid; gap:8px; font-size:12px; font-weight:800; }
 .practice-status-panel select,.practice-status-panel textarea { padding:12px; border:1px solid #c9c4b8; background:#fffdf8; font:inherit; }
 .practice-status-panel button { padding:13px 18px; border:0; background:var(--ink); color:#fff; font:inherit; font-weight:800; cursor:pointer; }
 .practice-items-section { margin-bottom:16px; padding:28px; border:1px solid #c9c4b8; background:#fffdf8; }
+.customer-quote-callout { display:flex; align-items:center; justify-content:space-between; gap:28px; margin-bottom:16px; padding:26px 28px; border:1px solid #11110f; border-left:5px solid var(--accent); background:#fffdf8; box-shadow:4px 4px 0 var(--accent); }.customer-quote-callout h2 { margin:0 0 8px; font-size:30px; letter-spacing:-.04em; }.customer-quote-callout p:not(.detail-label) { max-width:650px; margin:0; color:#656159; line-height:1.55; }.customer-quote-callout a { display:inline-flex; align-items:center; gap:10px; flex:0 0 auto; padding:14px 18px; background:var(--accent); color:#11110f; font-weight:900; text-decoration:none; }.customer-quote-callout a:hover { background:#11110f; color:white; }@media(max-width:700px){.customer-quote-callout{align-items:start;flex-direction:column}.customer-quote-callout a{width:100%;justify-content:center}}
 .practice-items-heading { display:flex; align-items:end; justify-content:space-between; gap:24px; padding-bottom:22px; border-bottom:1px solid #e2ddd2; }
 .practice-items-heading h2 { margin:0; font-size:28px; letter-spacing:-.04em; }
 .practice-items-heading > strong { font-size:24px; white-space:nowrap; }
@@ -107,6 +110,8 @@
 .practice-log-top time { color:#77736a; font-size:12px; white-space:nowrap; }
 .practice-log-content > p { margin:8px 0 0; color:#656159; font-size:14px; }
 .practice-log-content blockquote { margin:12px 0 0; padding:12px 14px; border-left:3px solid var(--accent); background:#ebe6dc; color:#48463f; }
+.quote-editor { max-width:1100px; margin-top:36px; }.quote-editor-grid { display:grid; grid-template-columns:minmax(0,1.4fr) 180px 170px 130px; gap:12px; align-items:center; }.quote-editor-row { display:contents; }.quote-editor-grid input[readonly] { background:#ebe6dc; color:#48463f; cursor:default; }.quote-editor-grid output { font-weight:900; text-align:right; }.quote-quantity { display:flex; align-items:center; gap:8px; }.quote-quantity input { width:52px; flex:0 0 52px; }.quote-quantity button { padding:9px 10px; border:1px solid #11110f; background:transparent; color:#11110f; font:inherit; font-size:12px; font-weight:800; cursor:pointer; }.quote-quantity button:hover:not(:disabled) { background:#11110f; color:white; }.quote-quantity button:disabled { opacity:.4; cursor:not-allowed; }.quote-editor-actions { display:flex; gap:12px; flex-wrap:wrap; }.quote-editor-actions button:last-child { background:var(--accent); color:var(--ink); }
+@media (max-width:700px) { .quote-editor-grid { grid-template-columns:1fr; }.quote-editor-grid > strong { display:none; }.quote-editor-row { display:grid; gap:10px; padding:18px 0; border-top:1px solid #e2ddd2; }.quote-editor-row::before { content:"Voce del preventivo"; color:#77736a; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.quote-editor-grid output { text-align:left; }.quote-quantity input { width:72px; flex-basis:72px; } }
 @media(max-width:700px){.practice-log{padding:20px}.practice-log-heading,.practice-log-top{align-items:start;flex-direction:column;gap:8px}.practice-log-top time{white-space:normal}}
 .auth-form select { width:100%; padding:14px; border:1px solid #4b4a43; background:#11110f; color:#fff; font:inherit; }
 @media(max-width:700px){.practice-detail-header{align-items:start;flex-direction:column}.practice-detail-grid{grid-template-columns:1fr}.practice-detail-notes{grid-column:auto}}

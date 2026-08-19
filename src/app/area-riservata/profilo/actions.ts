@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { hasValidCustomerDetails } from "@/lib/domain/customer-registration";
+import { hasValidCustomerDetails, normalizePec, normalizeRecipientCode, normalizeTaxCode, normalizeVatNumber } from "@/lib/domain/customer-registration";
 import { createClient } from "@/lib/supabase/server";
 
 const read = (data: FormData, key: string) => {
@@ -29,18 +29,44 @@ export async function updateCustomerProfile(data: FormData) {
 
   if (staff) finish("Il profilo fiscale è disponibile soltanto per gli account cliente.");
 
+  const { data: existingCustomer } = await supabase
+    .from("customer_profiles")
+    .select("customer_type")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const existingCustomerType = existingCustomer?.customer_type;
+  if (existingCustomerType !== "private" && existingCustomerType !== "business") {
+    finish("Il tipo di account non è disponibile.");
+  }
+  const customerType = existingCustomerType === "business" ? "business" : "private";
+
   const values = {
-    customerType: read(data, "customerType"),
+    customerType,
     firstName: read(data, "firstName"),
     lastName: read(data, "lastName"),
     phone: read(data, "phone"),
-    address: read(data, "address"),
+    addressStreet: read(data, "addressStreet"),
+    addressNumber: read(data, "addressNumber"),
+    addressPostalCode: read(data, "addressPostalCode"),
+    addressCity: read(data, "addressCity"),
+    addressProvince: read(data, "addressProvince").toUpperCase(),
+    addressCountry: read(data, "addressCountry"),
     companyName: read(data, "companyName"),
-    taxCode: read(data, "taxCode"),
-    vatNumber: read(data, "vatNumber"),
-    pec: read(data, "pec"),
-    recipientCode: read(data, "recipientCode").toUpperCase(),
+    taxCode: normalizeTaxCode(read(data, "taxCode")),
+    vatNumber: normalizeVatNumber(read(data, "vatNumber")),
+    pec: normalizePec(read(data, "pec")),
+    recipientCode: normalizeRecipientCode(read(data, "recipientCode")),
   };
+
+  const address = [
+    values.addressStreet,
+    values.addressNumber,
+    values.addressPostalCode,
+    values.addressCity,
+    values.addressProvince,
+    values.addressCountry,
+  ].filter(Boolean).join(", ");
 
   if (!hasValidCustomerDetails(values)) {
     finish("Controlla i dati obbligatori prima di salvare.");
@@ -59,8 +85,13 @@ export async function updateCustomerProfile(data: FormData) {
   const { error: customerError } = await supabase
     .from("customer_profiles")
     .update({
-      customer_type: values.customerType,
-      address: values.address,
+      address,
+      address_street: values.addressStreet,
+      address_number: values.addressNumber,
+      address_postal_code: values.addressPostalCode,
+      address_city: values.addressCity,
+      address_province: values.addressProvince,
+      address_country: values.addressCountry,
       company_name: isBusiness ? values.companyName : null,
       tax_code: isBusiness ? null : values.taxCode,
       vat_number: isBusiness ? values.vatNumber : null,
@@ -70,6 +101,9 @@ export async function updateCustomerProfile(data: FormData) {
     .eq("user_id", user.id);
 
   if (profileError || customerError) {
+    if (customerError?.code === "23505") {
+      finish("Codice fiscale o Partita IVA già associati a un altro account.");
+    }
     finish("Non è stato possibile aggiornare il profilo.");
   }
 
@@ -77,10 +111,15 @@ export async function updateCustomerProfile(data: FormData) {
     data: {
       first_name: isBusiness ? "" : values.firstName,
       last_name: isBusiness ? "" : values.lastName,
-      customer_type: values.customerType,
       company_name: isBusiness ? values.companyName : "",
       phone: values.phone,
-      address: values.address,
+      address,
+      address_street: values.addressStreet,
+      address_number: values.addressNumber,
+      address_postal_code: values.addressPostalCode,
+      address_city: values.addressCity,
+      address_province: values.addressProvince,
+      address_country: values.addressCountry,
       tax_code: isBusiness ? "" : values.taxCode,
       vat_number: isBusiness ? values.vatNumber : "",
       pec: isBusiness ? values.pec : "",

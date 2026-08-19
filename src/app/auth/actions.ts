@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { hasValidCustomerDetails } from "@/lib/domain/customer-registration";
+import { hasValidCustomerDetails, normalizePec, normalizeRecipientCode, normalizeTaxCode, normalizeVatNumber } from "@/lib/domain/customer-registration";
 import { isDuplicateRegistration } from "@/lib/domain/registration";
 
 const read = (data: FormData, key: string) => {
@@ -14,18 +14,24 @@ const fail = (path: string, message: string): never => redirect(`${path}?message
 export async function signUp(data: FormData) {
   const firstName = read(data, "firstName"), lastName = read(data, "lastName");
   const email = read(data, "email"), password = read(data, "password"), passwordConfirmation = read(data, "passwordConfirmation");
-  const phone = read(data, "phone"), address = read(data, "address");
+  const phone = read(data, "phone"), addressStreet = read(data, "addressStreet"), addressNumber = read(data, "addressNumber"), addressPostalCode = read(data, "addressPostalCode"), addressCity = read(data, "addressCity"), addressProvince = read(data, "addressProvince").toUpperCase(), addressCountry = read(data, "addressCountry");
+  const address = [addressStreet, addressNumber, addressPostalCode, addressCity, addressProvince, addressCountry].filter(Boolean).join(", ");
   const customerType = read(data, "customerType");
-  const companyName = read(data, "companyName"), taxCode = read(data, "taxCode"), vatNumber = read(data, "vatNumber");
-  const pec = read(data, "pec"), recipientCode = read(data, "recipientCode").toUpperCase();
+  const companyName = read(data, "companyName"), taxCode = normalizeTaxCode(read(data, "taxCode")), vatNumber = normalizeVatNumber(read(data, "vatNumber"));
+  const pec = normalizePec(read(data, "pec")), recipientCode = normalizeRecipientCode(read(data, "recipientCode"));
   if (password !== passwordConfirmation) fail("/registrazione", "Le password non coincidono.");
-  if (!email || password.length < 10 || !hasValidCustomerDetails({ customerType, firstName, lastName, phone, address, companyName, taxCode, vatNumber, pec, recipientCode })) fail("/registrazione", "Controlla i dati obbligatori e usa almeno 10 caratteri per la password.");
+  if (!email || password.length < 10 || !hasValidCustomerDetails({ customerType, firstName, lastName, phone, addressStreet, addressNumber, addressPostalCode, addressCity, addressProvince, addressCountry, companyName, taxCode, vatNumber, pec, recipientCode })) fail("/registrazione", "Controlla i dati obbligatori e usa almeno 10 caratteri per la password.");
   const supabase = await createClient();
-  const { data: signUpData, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName, phone, address, customer_type: customerType, company_name: companyName, tax_code: taxCode, vat_number: vatNumber, pec, recipient_code: recipientCode } } });
+  const { data: signUpData, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name: firstName, last_name: lastName, phone, address, address_street: addressStreet, address_number: addressNumber, address_postal_code: addressPostalCode, address_city: addressCity, address_province: addressProvince, address_country: addressCountry, customer_type: customerType, company_name: companyName, tax_code: taxCode, vat_number: vatNumber, pec, recipient_code: recipientCode } } });
   if (isDuplicateRegistration({ errorCode: error?.code, errorMessage: error?.message, identities: signUpData.user?.identities })) {
     fail("/registrazione", "Esiste già un account con questa email. Accedi oppure recupera la password.");
   }
-  if (error) fail("/registrazione", "Non è stato possibile creare l’account.");
+  if (error) {
+    if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
+      fail("/registrazione", "Codice fiscale o Partita IVA già associati a un altro account.");
+    }
+    fail("/registrazione", "Non è stato possibile creare l’account.");
+  }
   fail("/accesso", "Controlla la tua email e conferma l’indirizzo prima di accedere.");
 }
 

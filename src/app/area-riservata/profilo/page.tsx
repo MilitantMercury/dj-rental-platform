@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CustomerProfileForm, StaffProfileForm } from "./profile-form";
+import { BackLink } from "@/components/back-link";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ export default async function ProfilePage({
       .maybeSingle(),
     supabase
       .from("customer_profiles")
-      .select("customer_type,company_name,tax_code,vat_number,address,pec,recipient_code")
+      .select("customer_type,company_name,tax_code,vat_number,address,address_street,address_number,address_postal_code,address_city,address_province,address_country,pec,recipient_code")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase
@@ -42,7 +42,7 @@ export default async function ProfilePage({
 
   return (
     <main className="dashboard shell profile-page">
-      <Link href="/area-riservata">← Area riservata</Link>
+      <BackLink href="/area-riservata">Area riservata</BackLink>
       <div className="profile-page-heading">
         <div>
           <p className="eyebrow dark">Account</p>
@@ -71,7 +71,13 @@ export default async function ProfilePage({
             lastName: profile?.last_name || "",
             email: user.email || profile?.email || "",
             phone: profile?.phone || "",
-            address: customer?.address || "",
+            addressLegacy: customer?.address || "",
+            addressStreet: customer?.address_street || "",
+            addressNumber: customer?.address_number || "",
+            addressPostalCode: customer?.address_postal_code || "",
+            addressCity: customer?.address_city || "",
+            addressProvince: customer?.address_province || "",
+            addressCountry: customer?.address_country || "Italia",
             companyName: customer?.company_name || "",
             taxCode: customer?.tax_code || "",
             vatNumber: customer?.vat_number || "",

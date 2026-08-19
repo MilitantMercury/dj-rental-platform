@@ -1,22 +1,8 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "../auth/actions";
 export const dynamic = "force-dynamic";
-export default async function AreaRiservata() {
-  const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user) redirect("/accesso");
-  const [staffResult, profileResult, customerResult] = await Promise.all([
-    supabase.from("staff_profiles").select("role,display_name").eq("user_id", user.id).maybeSingle(),
-    supabase.from("profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
-    supabase.from("customer_profiles").select("customer_type,company_name").eq("user_id", user.id).maybeSingle(),
-  ]);
-  const staff = staffResult.data;
-  const profile = profileResult.data;
-  const customer = customerResult.data;
-  const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : "Cliente";
-  const customerName = customer?.customer_type === "business"
-    ? customer.company_name || "Bentornato"
-    : profile?.first_name || "Bentornato";
-  const name = staff?.display_name ?? customerName;
-  return <main className="dashboard shell reserved-page"><p className="eyebrow dark">Area riservata</p><div className="reserved-header"><h1>Il tuo spazio.</h1></div><section className="reserved-card"><div className="reserved-welcome"><div><h2>Ciao, {name}.</h2><p className="reserved-email">{user.email}</p></div><span className="reserved-role">{role}</span></div>{staff?.role ? <div className="reserved-actions"><Link className="dashboard-link" href="/area-riservata/pratiche">Gestisci pratiche →</Link>{staff.role === "owner" && <><Link className="dashboard-link" href="/area-riservata/catalogo">Gestisci catalogo →</Link><Link className="dashboard-link" href="/area-riservata/configurazione/eventi">Tipi di evento →</Link></>}</div> : <div className="reserved-actions"><Link className="dashboard-link" href="/area-riservata/richieste">Le mie richieste →</Link><Link className="dashboard-link" href="/area-riservata/preventivi">I miei preventivi →</Link></div>}<div className="reserved-logout"><form action={signOut}><button type="submit">Esci dall’account</button></form></div></section></main>;
-}
+type Action={href:string;eyebrow:string;title:string;description:string;primary?:boolean};
+const customerActions:Action[]=[{href:"/area-riservata/richieste",eyebrow:"Richieste",title:"Le mie richieste",description:"Segui ogni evento, i dettagli e gli aggiornamenti del gestore."},{href:"/area-riservata/preventivi",eyebrow:"Preventivi",title:"Le mie proposte",description:"Consulta, accetta o chiedi modifiche ai preventivi ricevuti."},{href:"/area-riservata/profilo",eyebrow:"Profilo",title:"I miei dati",description:"Aggiorna contatti e informazioni amministrative."}];
+const staffActions=(owner:boolean):Action[]=>[{href:"/area-riservata/pratiche",eyebrow:"Operatività",title:"Gestisci pratiche",description:"Prendi in carico le richieste e segui il ciclo di ogni evento."},...(owner?[{href:"/area-riservata/catalogo",eyebrow:"Catalogo",title:"Attrezzatura e servizi",description:"Mantieni aggiornati prodotti, servizi e contenuti visibili."},{href:"/area-riservata/configurazione/eventi",eyebrow:"Configurazione",title:"Tipi di evento",description:"Gestisci le tipologie selezionabili dai clienti."}]:[]),{href:"/area-riservata/profilo",eyebrow:"Profilo",title:"I miei dati",description:"Aggiorna le informazioni del tuo account."}];
+export default async function AreaRiservata(){const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)redirect("/accesso");const[staffResult,profileResult,customerResult]=await Promise.all([supabase.from("staff_profiles").select("role,display_name").eq("user_id",user.id).maybeSingle(),supabase.from("profiles").select("first_name").eq("user_id",user.id).maybeSingle(),supabase.from("customer_profiles").select("customer_type,company_name").eq("user_id",user.id).maybeSingle()]);const staff=staffResult.data;const customerName=customerResult.data?.customer_type==="business"?customerResult.data.company_name||"Bentornato":profileResult.data?.first_name||"Bentornato";const name=staff?.display_name??customerName;const role=staff?.role==="owner"?"Owner":staff?.role==="collaborator"?"Collaboratore":"Cliente";const actions=staff?.role?staffActions(staff.role==="owner"):customerActions;return <main className="dashboard shell reserved-page"><section className="reserved-hero"><div><p className="eyebrow dark">Area riservata</p><h1>Ciao, {name}.</h1><p>Da qui puoi tenere sotto controllo tutto ciò che riguarda il tuo account.</p></div><div className="reserved-identity"><span>{role}</span><small>{user.email}</small></div></section><section className="reserved-overview"><div><p className="detail-label">Il tuo spazio</p><h2>{staff?.role?"Strumenti di gestione":"Tutto sotto controllo"}</h2></div><p>{staff?.role?"Accedi alle attività operative e alla configurazione della piattaforma.":"Consulta richieste e preventivi, oppure aggiorna i tuoi dati."}</p></section><section className={`reserved-actions ${actions.length===4?"reserved-actions-four":""}`}>{actions.map(action=><Link key={action.href} href={action.href} className="reserved-action"><p className="detail-label">{action.eyebrow}</p><h2>{action.title}</h2><p>{action.description}</p><strong>Apri <span aria-hidden="true">→</span></strong></Link>)}</section></main>}

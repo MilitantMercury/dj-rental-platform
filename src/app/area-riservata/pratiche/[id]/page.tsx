@@ -89,6 +89,8 @@ export default async function PracticeDetail({
       ? ["in_review", "rejected", "cancelled"]
       : request.status === "in_review"
         ? ["received", "rejected", "cancelled"]
+        : request.status === "accepted"
+          ? ["confirmed"]
         : request.status === "confirmed"
           ? ["closed"]
           : [];
@@ -173,9 +175,9 @@ export default async function PracticeDetail({
         ) : null}
       </section>
 
-      <section className="practice-status-panel">
-        <p className="detail-label">Gestione pratica</p>
-        {transitions.length ? (
+      {transitions.length ? (
+        <section className="practice-status-panel">
+          <p className="detail-label">Gestione pratica</p>
           <form action={updateRequestStatus}>
             <input type="hidden" name="requestId" value={id} />
             <input type="hidden" name="currentStatus" value={request.status} />
@@ -183,33 +185,36 @@ export default async function PracticeDetail({
               Nuovo stato
               <select name="status" required defaultValue="">
                 <option value="" disabled>Seleziona un’azione</option>
-                {transitions.map((status) => (
-                  <option key={status} value={status}>
-                    {requestStatusLabel(status)}
-                  </option>
-                ))}
+                {transitions.map((status) => <option key={status} value={status}>{requestStatusLabel(status)}</option>)}
               </select>
             </label>
-            <label>
-              Nota interna
-              <textarea name="note" rows={2} placeholder="Facoltativa" />
-            </label>
+            <label>Nota interna<textarea name="note" rows={2} placeholder="Facoltativa" /></label>
             <button type="submit">Aggiorna stato</button>
           </form>
-        ) : (
-          <p>Questa pratica non prevede altre transizioni manuali.</p>
-        )}
-      </section>
+        </section>
+      ) : null}
 
-      {!["rejected", "cancelled", "closed"].includes(request.status) && (
+      {["received", "in_review"].includes(request.status) && (
         <section className="practice-status-panel">
           <p className="detail-label">Preventivo</p>
           <p>Prepara una bozza economica per questa richiesta.</p>
-          <form action={createQuoteFromRequest}>
-            <input type="hidden" name="requestId" value={id} />
-            <button type="submit">Crea preventivo</button>
-          </form>
+          <form action={createQuoteFromRequest}><input type="hidden" name="requestId" value={id} /><button type="submit">Crea preventivo</button></form>
         </section>
+      )}
+
+      {request.status === "changes_requested" && (
+        <section className="practice-status-panel practice-next-action">
+          <p className="detail-label">Nuova revisione</p><h2>Il cliente ha richiesto modifiche.</h2><p>Prepara una nuova revisione del preventivo. La proposta precedente resterà nello storico.</p>
+          <form action={createQuoteFromRequest}><input type="hidden" name="requestId" value={id} /><button type="submit">Crea nuova revisione</button></form>
+        </section>
+      )}
+
+      {request.status === "quote_draft" && (
+        <section className="practice-status-panel practice-next-action"><p className="detail-label">Preventivo in preparazione</p><p>La bozza è in lavorazione. Aprila per completare importi e condizioni.</p><Link className="practice-panel-link" href={`/area-riservata/pratiche/${id}/preventivo`}>Apri bozza →</Link></section>
+      )}
+
+      {request.status === "quote_published" && (
+        <section className="practice-status-panel practice-next-action"><p className="detail-label">Preventivo inviato</p><p>La proposta è stata inviata al cliente. In attesa della sua risposta.</p></section>
       )}
 
       <div className="practice-detail-grid">

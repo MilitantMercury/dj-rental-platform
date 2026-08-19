@@ -170,6 +170,12 @@ export type Database = {
       customer_profiles: {
         Row: {
           address: string | null
+          address_city: string | null
+          address_country: string
+          address_number: string | null
+          address_postal_code: string | null
+          address_province: string | null
+          address_street: string | null
           company_name: string | null
           created_at: string
           customer_type: string
@@ -182,6 +188,12 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_city?: string | null
+          address_country?: string
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
           company_name?: string | null
           created_at?: string
           customer_type?: string
@@ -194,6 +206,12 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_city?: string | null
+          address_country?: string
+          address_number?: string | null
+          address_postal_code?: string | null
+          address_province?: string | null
+          address_street?: string | null
           company_name?: string | null
           created_at?: string
           customer_type?: string
@@ -365,6 +383,7 @@ export type Database = {
           id: string
           quantity: number
           revision_id: string
+          source_request_item_id: string | null
           sort_order: number
           total_cents: number
           unit_price_cents: number
@@ -374,6 +393,7 @@ export type Database = {
           id?: string
           quantity?: number
           revision_id: string
+          source_request_item_id?: string | null
           sort_order?: number
           total_cents?: number
           unit_price_cents?: number
@@ -383,6 +403,7 @@ export type Database = {
           id?: string
           quantity?: number
           revision_id?: string
+          source_request_item_id?: string | null
           sort_order?: number
           total_cents?: number
           unit_price_cents?: number
@@ -393,6 +414,13 @@ export type Database = {
             columns: ["revision_id"]
             isOneToOne: false
             referencedRelation: "quote_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_source_request_item_id_fkey"
+            columns: ["source_request_item_id"]
+            isOneToOne: false
+            referencedRelation: "request_items"
             referencedColumns: ["id"]
           },
         ]
@@ -668,6 +696,12 @@ export type Database = {
           status: string
           updated_at: string
           venue_address: string
+          venue_city: string | null
+          venue_country: string
+          venue_number: string | null
+          venue_postal_code: string | null
+          venue_province: string | null
+          venue_street: string | null
           venue_name: string
         }
         Insert: {
@@ -687,6 +721,12 @@ export type Database = {
           status?: string
           updated_at?: string
           venue_address: string
+          venue_city?: string | null
+          venue_country?: string
+          venue_number?: string | null
+          venue_postal_code?: string | null
+          venue_province?: string | null
+          venue_street?: string | null
           venue_name: string
         }
         Update: {
@@ -706,6 +746,12 @@ export type Database = {
           status?: string
           updated_at?: string
           venue_address?: string
+          venue_city?: string | null
+          venue_country?: string
+          venue_number?: string | null
+          venue_postal_code?: string | null
+          venue_province?: string | null
+          venue_street?: string | null
           venue_name?: string
         }
         Relationships: [
@@ -808,6 +854,19 @@ export type Database = {
       current_staff_role: {
         Args: never
         Returns: Database["public"]["Enums"]["staff_role"]
+      }
+      publish_quote_revision: {
+        Args: {
+          p_conditions: string
+          p_deposit_cents: number
+          p_discount_cents: number
+          p_revision_id: string
+        }
+        Returns: undefined
+      }
+      respond_to_current_quote: {
+        Args: { p_comment?: string; p_outcome: string; p_revision_id: string }
+        Returns: undefined
       }
     }
     Enums: {

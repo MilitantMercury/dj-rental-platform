@@ -35,7 +35,7 @@ jobs:
       - name: Prepara archivio della build
         run: tar -czf dj-rental-platform-build.tgz .next
       - name: Attesta la provenienza della build
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.repository.visibility == 'public'
         uses: actions/attest@v4
         with:
           subject-path: dj-rental-platform-build.tgz

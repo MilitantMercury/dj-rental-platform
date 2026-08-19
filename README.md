@@ -52,7 +52,7 @@ Non eseguire il link o il push verso PRODUZIONE senza una verifica esplicita del
 
 ## CI
 
-GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. Dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build. Le PR devono avere tutti i controlli verdi prima del merge.
+GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. Nei repository pubblici, dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build; GitHub non offre questa funzione ai repository privati di account personali. Le PR devono avere tutti i controlli verdi prima del merge.
 
 ## Verifiche
 

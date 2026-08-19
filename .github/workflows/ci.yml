@@ -12,6 +12,11 @@ permissions:
 jobs:
   application:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -27,6 +32,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_example
           NEXT_PUBLIC_APP_URL: http://localhost:3000
+      - name: Prepara archivio della build
+        run: tar -czf dj-rental-platform-build.tgz .next
+      - name: Attesta la provenienza della build
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest@v4
+        with:
+          subject-path: dj-rental-platform-build.tgz
 
   database:
     runs-on: ubuntu-latest

@@ -8,10 +8,23 @@ Sono disponibili:
 
 - autenticazione Supabase con verifica email e ruoli cliente, collaboratore e owner;
 - catalogo pubblico e gestione catalogo owner;
-- richieste cliente con dati evento, logistica e privacy;
+- carrello sincronizzato per utente autenticato e richieste cliente con dati evento, location, logistica e privacy;
 - area pratiche staff con dettaglio e transizioni di stato auditabili;
-- area cliente con accesso isolato alle proprie richieste;
-- fondamenta preventivi, revisioni, voci e risposte cliente in Supabase.
+- area cliente con accesso isolato alle proprie richieste, preventivi e profilo;
+- preventivi con bozze, revisioni immutabili, pubblicazione e risposta del cliente;
+- preventivi composti da voci economiche, con possibilità per il gestore di dividere una quantità richiesta in più righe a prezzo diverso;
+- profilo cliente privato o Partita IVA, con controlli sui dati fiscali e indirizzi strutturati;
+- tipologie di evento configurabili dal gestore e registro delle attività della pratica.
+
+## Prossimo ciclo: E8 — Magazzino e disponibilità
+
+Il prossimo sviluppo riguarda la disponibilità quantitativa nel tempo: giacenza, materiale fuori servizio, conflitti tra pratiche, opzioni temporanee e margine operativo. Prima di implementarlo restano da definire:
+
+- durata predefinita dell'opzione e relativo comportamento alla scadenza;
+- se lo stato “In attesa acconto” blocca la disponibilità;
+- margine operativo globale o per prodotto/categoria.
+
+Una richiesta e il carrello non bloccano mai il magazzino; la conferma resta un'azione esplicita del gestore.
 
 ## Avvio locale
 
@@ -39,7 +52,7 @@ Non eseguire il link o il push verso PRODUZIONE senza una verifica esplicita del
 
 ## CI
 
-GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. Le PR devono avere tutti i controlli verdi prima del merge.
+GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. Dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build. Le PR devono avere tutti i controlli verdi prima del merge.
 
 ## Verifiche
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { euroToCents } from "@/lib/quote-pricing";
+import { calculateQuoteTotals, euroToCents } from "@/lib/quote-pricing";
 
 describe("importi del preventivo", () => {
   it("converte importi in euro in centesimi senza arrotondamenti impliciti", () => {
@@ -11,5 +11,13 @@ describe("importi del preventivo", () => {
   it("rifiuta formati ambigui o importi negativi", () => {
     expect(euroToCents("12.345")).toBeNull();
     expect(euroToCents("-1")).toBeNull();
+  });
+
+  it("calcola i totali della bozza e impedisce sconti superiori al subtotale", () => {
+    expect(calculateQuoteTotals([1250, 800], 50)).toEqual({
+      subtotalCents: 2050,
+      totalCents: 2000,
+    });
+    expect(calculateQuoteTotals([1250], 1251)).toBeNull();
   });
 });

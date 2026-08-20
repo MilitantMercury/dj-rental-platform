@@ -77,7 +77,7 @@
 .customer-detail-list dd { max-width:62%; overflow-wrap:anywhere; }
 .practice-detail-notes { grid-column:1/-1; }
 .practice-status-panel { margin-bottom:16px; padding:24px 28px; border:1px solid #c9c4b8; background:#ebe6dc; }
-.practice-next-action { border-left:4px solid var(--accent); background:#fffdf8; }.practice-next-action h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-next-action > p:not(.detail-label) { max-width:680px; margin:0; color:#656159; line-height:1.55; }.practice-next-action form { margin-top:18px; }.practice-panel-link { display:inline-flex; padding:13px 18px; background:var(--accent); color:#11110f; font-weight:900; text-decoration:none; }
+.practice-next-action { border-left:4px solid var(--accent); background:#fffdf8; }.practice-next-action h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-next-action > p:not(.detail-label),.practice-next-action-row p:not(.detail-label) { max-width:680px; margin:0; color:#656159; line-height:1.55; }.practice-next-action form { margin-top:18px; }.practice-next-action-row { display:flex; align-items:center; justify-content:space-between; gap:28px; }.practice-panel-link { display:inline-flex; margin-top:18px; padding:13px 18px; background:var(--accent); color:#11110f; font-weight:900; text-decoration:none; }.practice-panel-link-inline { flex:0 0 auto; margin-top:0; }
 .practice-detail-page .auth-message { color:#fff; background:#292922; }
 .practice-status-panel form { display:grid; grid-template-columns:1fr 1.5fr auto; gap:14px; align-items:end; }
 .practice-status-panel label { display:grid; gap:8px; font-size:12px; font-weight:800; }
@@ -95,7 +95,7 @@
 .practice-items-list li { display:flex; justify-content:space-between; gap:20px; padding:13px 0; border-top:1px solid #e2ddd2; }
 .practice-items-list li span { color:#48463f; }
 .practice-items-empty { margin:0; color:#77736a; line-height:1.55; }
-@media(max-width:700px){.practice-status-panel form{grid-template-columns:1fr}}
+@media(max-width:700px){.practice-status-panel form{grid-template-columns:1fr}.practice-next-action-row{align-items:stretch;flex-direction:column}.practice-panel-link-inline{justify-content:center}}
 @media(max-width:700px){.practice-items-heading{align-items:start;flex-direction:column}.practice-items-columns{grid-template-columns:1fr;gap:24px}}
 .practice-log { margin-top:16px; padding:28px; border:1px solid #c9c4b8; background:#fffdf8; }
 .practice-log-heading { display:flex; align-items:end; justify-content:space-between; gap:24px; padding-bottom:22px; border-bottom:1px solid #e2ddd2; }

@@ -11,8 +11,10 @@ Sono disponibili:
 - carrello sincronizzato per utente autenticato e richieste cliente con dati evento, location, logistica e privacy;
 - area pratiche staff con dettaglio e transizioni di stato auditabili;
 - area cliente con accesso isolato alle proprie richieste, preventivi e profilo;
-- preventivi con bozze, revisioni immutabili, pubblicazione e risposta del cliente;
+- preventivi con bozze persistenti, revisioni immutabili, pubblicazione e risposta del cliente;
 - preventivi composti da voci economiche, con possibilità per il gestore di dividere una quantità richiesta in più righe a prezzo diverso;
+- area cliente dei preventivi organizzata per pratica, con storico espandibile delle revisioni pubblicate;
+- consultazione del preventivo pubblicato anche dal dettaglio della pratica owner;
 - profilo cliente privato o Partita IVA, con controlli sui dati fiscali e indirizzi strutturati;
 - tipologie di evento configurabili dal gestore e registro delle attività della pratica.
 

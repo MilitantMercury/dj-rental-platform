@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { euroToCents } from "@/lib/quote-pricing";
+import { calculateQuoteTotals, euroToCents } from "@/lib/quote-pricing";
 import { hasExactRequestedQuantities } from "@/lib/quote-lines";
 const allowed: Record<string, string[]> = { received: ["in_review", "rejected", "cancelled"], in_review: ["received", "rejected", "cancelled"], accepted: ["confirmed"], confirmed: ["closed"] };
 export async function updateRequestStatus(data: FormData) { const id=String(data.get("requestId")??""); const current=String(data.get("currentStatus")??""); const next=String(data.get("status")??""); const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user) redirect("/accesso"); const {data:staff}=await supabase.from("staff_profiles").select("role").eq("user_id",user.id).maybeSingle(); if(staff?.role!=="owner"||!allowed[current]?.includes(next)) redirect(`/area-riservata/pratiche/${id}?message=transizione-non-consentita`); const {data:request}=await supabase.from("requests").select("status").eq("id",id).maybeSingle(); if(!request||request.status!==current) redirect(`/area-riservata/pratiche/${id}?message=stato-aggiornato-da-altri`); const {error}=await supabase.from("requests").update({status:next}).eq("id",id); if(!error) await supabase.from("request_status_history").insert({request_id:id,previous_status:current,new_status:next,changed_by:user.id,note:String(data.get("note")??"")}); redirect(`/area-riservata/pratiche/${id}?message=${error?"errore":"stato-aggiornato"}`); }
@@ -53,16 +53,34 @@ export async function saveQuoteDraft(data: FormData) {
   const sourceItemIds = data.getAll("sourceItemId").map((value) => String(value));
   const quantities = data.getAll("quantity").map((value) => Number(value));
   const prices = data.getAll("unitPrice").map(euroToCents);
-  if (!revisionId || sourceItemIds.length !== quantities.length || quantities.length !== prices.length) redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=bozza-non-valida`);
+  const discount = euroToCents(data.get("discount"));
+  const deposit = euroToCents(data.get("deposit"));
+  const conditions = String(data.get("conditions") ?? "").trim();
+  if (!revisionId || discount === null || deposit === null || sourceItemIds.length !== quantities.length || quantities.length !== prices.length) redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=bozza-non-valida`);
   const { data: revision } = await supabase.from("quote_revisions").select("status").eq("id", revisionId).maybeSingle();
   if (revision?.status !== "draft") redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=bozza-non-modificabile`);
   const { data: requestItems } = await supabase.from("request_items").select("id,description,quantity").eq("request_id", requestId).order("created_at");
   const descriptionsBySource = new Map((requestItems ?? []).map((item) => [item.id, item.description]));
   const items = sourceItemIds.map((sourceRequestItemId, index) => ({ source_request_item_id: sourceRequestItemId, description: descriptionsBySource.get(sourceRequestItemId) ?? "", quantity: quantities[index], unit_price_cents: prices[index], total_cents: (prices[index] ?? 0) * quantities[index], sort_order: index }));
   if (!hasExactRequestedQuantities(requestItems ?? [], items.map((item) => ({ sourceRequestItemId: item.source_request_item_id, quantity: item.quantity }))) || items.some((item) => !item.description || item.unit_price_cents === null || item.unit_price_cents < 0)) redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=bozza-non-valida`);
+  const totals = calculateQuoteTotals(items.map((item) => item.total_cents), discount);
+  if (!totals) redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=sconto-non-valido`);
   const { error: removeError } = await supabase.from("quote_items").delete().eq("revision_id", revisionId);
   const { error: insertError } = await supabase.from("quote_items").insert(items.map((item) => ({ ...item, revision_id: revisionId, unit_price_cents: item.unit_price_cents! })));
-  redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=${removeError || insertError ? "errore-bozza" : "bozza-salvata"}`);
+  const { error: revisionError } = removeError || insertError
+    ? { error: null }
+    : await supabase
+      .from("quote_revisions")
+      .update({
+        subtotal_cents: totals.subtotalCents,
+        discount_cents: discount,
+        total_cents: totals.totalCents,
+        deposit_cents: deposit,
+        conditions: conditions.slice(0, 5000),
+      })
+      .eq("id", revisionId)
+      .eq("status", "draft");
+  redirect(`/area-riservata/pratiche/${requestId}/preventivo?message=${removeError || insertError || revisionError ? "errore-bozza" : "bozza-salvata"}`);
 }
 
 export async function publishQuote(data: FormData) {

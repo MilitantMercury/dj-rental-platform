@@ -36,7 +36,7 @@ export default async function PracticeDetail({
 
   if (!request) notFound();
 
-  const [customerResult, customerProfileResult, itemsResult, historyResult] =
+  const [customerResult, customerProfileResult, itemsResult, historyResult, quoteResult] =
     await Promise.all([
     supabase
       .from("profiles")
@@ -58,12 +58,18 @@ export default async function PracticeDetail({
       .select("id,previous_status,new_status,note,changed_by,created_at")
       .eq("request_id", id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("quotes")
+      .select("current_revision_id")
+      .eq("request_id", id)
+      .maybeSingle(),
     ]);
 
   const customer = customerResult.data;
   const customerProfile = customerProfileResult.data;
   const items = itemsResult.data ?? [];
   const history = historyResult.data ?? [];
+  const hasPublishedQuote = Boolean(quoteResult.data?.current_revision_id);
   const actorIds = [...new Set(history.map((entry) => entry.changed_by))];
   const { data: actors } = actorIds.length
     ? await supabase
@@ -213,8 +219,18 @@ export default async function PracticeDetail({
         <section className="practice-status-panel practice-next-action"><p className="detail-label">Preventivo in preparazione</p><p>La bozza è in lavorazione. Aprila per completare importi e condizioni.</p><Link className="practice-panel-link" href={`/area-riservata/pratiche/${id}/preventivo`}>Apri bozza →</Link></section>
       )}
 
-      {request.status === "quote_published" && (
-        <section className="practice-status-panel practice-next-action"><p className="detail-label">Preventivo inviato</p><p>La proposta è stata inviata al cliente. In attesa della sua risposta.</p></section>
+      {hasPublishedQuote && (
+        <section className="practice-status-panel practice-next-action">
+          <div className="practice-next-action-row">
+            <div>
+              <p className="detail-label">Preventivo pubblicato</p>
+              <p>{request.status === "quote_published" ? "La proposta è stata inviata al cliente. In attesa della sua risposta." : "Consulta la revisione pubblicata collegata a questa pratica."}</p>
+            </div>
+            <Link className="practice-panel-link practice-panel-link-inline" href={`/area-riservata/pratiche/${id}/preventivo`}>
+              Rivedi preventivo →
+            </Link>
+          </div>
+        </section>
       )}
 
       <div className="practice-detail-grid">

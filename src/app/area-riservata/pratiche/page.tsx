@@ -8,15 +8,16 @@ import {
   requestStatusLabel,
 } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
+import { expireDueOptions } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function PracticesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; stato?: string }>;
+  searchParams: Promise<{ vista?: string; stato?: string; message?: string }>;
 }) {
-  const { vista, stato } = await searchParams;
+  const { vista, stato, message } = await searchParams;
   const isArchiveView = vista === "archivio";
   const archiveFilter = ARCHIVED_REQUEST_STATUSES.includes(
     stato as (typeof ARCHIVED_REQUEST_STATUSES)[number],
@@ -93,6 +94,8 @@ export default async function PracticesPage({
           <strong>{allRequests.length}</strong> richieste totali
         </div>
       </div>
+      {staff.role === "owner" && <form action={expireDueOptions}><button className="status-button" type="submit">Aggiorna opzioni scadute</button></form>}
+      {message && <div className="auth-message catalog-message" role="status">{message.startsWith("opzioni-aggiornate-") ? `${message.replace("opzioni-aggiornate-", "")} opzioni scadute aggiornate.` : message.replaceAll("-", " ")}</div>}
       <nav className="practice-view-tabs" aria-label="Viste delle pratiche">
         <Link
           className={!isArchiveView ? "is-active" : undefined}

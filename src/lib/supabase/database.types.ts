@@ -39,6 +39,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: { created_at: string; id: boolean; operational_margin_days: number; option_duration_hours: number; timezone: string; updated_at: string }
+        Insert: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string }
+        Update: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -295,6 +301,86 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      external_supplies: {
+        Row: { created_at: string; id: string; internal_notes: string; product_id: string; quantity: number; request_id: string; status: string; supplier_name: string; updated_at: string }
+        Insert: { created_at?: string; id?: string; internal_notes?: string; product_id: string; quantity: number; request_id: string; status?: string; supplier_name: string; updated_at?: string }
+        Update: { created_at?: string; id?: string; internal_notes?: string; product_id?: string; quantity?: number; request_id?: string; status?: string; supplier_name?: string; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "external_supplies_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] },
+          { foreignKeyName: "external_supplies_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] },
+        ]
+      }
+      financial_records: {
+        Row: { amount_cents: number; created_at: string; id: string; internal_notes: string; payment_method: string; record_type: string; recorded_by: string; recorded_on: string; request_id: string; updated_at: string }
+        Insert: { amount_cents: number; created_at?: string; id?: string; internal_notes?: string; payment_method?: string; record_type: string; recorded_by: string; recorded_on?: string; request_id: string; updated_at?: string }
+        Update: { amount_cents?: number; created_at?: string; id?: string; internal_notes?: string; payment_method?: string; record_type?: string; recorded_by?: string; recorded_on?: string; request_id?: string; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "financial_records_recorded_by_fkey"; columns: ["recorded_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["user_id"] },
+          { foreignKeyName: "financial_records_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] },
+        ]
+      }
+      preparation_lists: {
+        Row: { completed_at: string | null; completed_by: string | null; created_at: string; id: string; request_id: string; started_at: string; started_by: string; status: string; updated_at: string }
+        Insert: { completed_at?: string | null; completed_by?: string | null; created_at?: string; id?: string; request_id: string; started_at?: string; started_by: string; status?: string; updated_at?: string }
+        Update: { completed_at?: string | null; completed_by?: string | null; created_at?: string; id?: string; request_id?: string; started_at?: string; started_by?: string; status?: string; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "preparation_lists_request_id_fkey"; columns: ["request_id"]; isOneToOne: true; referencedRelation: "requests"; referencedColumns: ["id"] },
+        ]
+      }
+      preparation_items: {
+        Row: { created_at: string; delivered_quantity: number; description: string; expected_quantity: number; id: string; notes: string; preparation_list_id: string; prepared_quantity: number; returned_quantity: number; source_request_item_id: string; status: string; updated_at: string; updated_by: string | null }
+        Insert: { created_at?: string; delivered_quantity?: number; description: string; expected_quantity: number; id?: string; notes?: string; preparation_list_id: string; prepared_quantity?: number; returned_quantity?: number; source_request_item_id: string; status?: string; updated_at?: string; updated_by?: string | null }
+        Update: { created_at?: string; delivered_quantity?: number; description?: string; expected_quantity?: number; id?: string; notes?: string; preparation_list_id?: string; prepared_quantity?: number; returned_quantity?: number; source_request_item_id?: string; status?: string; updated_at?: string; updated_by?: string | null }
+        Relationships: [
+          { foreignKeyName: "preparation_items_preparation_list_id_fkey"; columns: ["preparation_list_id"]; isOneToOne: false; referencedRelation: "preparation_lists"; referencedColumns: ["id"] },
+          { foreignKeyName: "preparation_items_source_request_item_id_fkey"; columns: ["source_request_item_id"]; isOneToOne: true; referencedRelation: "request_items"; referencedColumns: ["id"] },
+        ]
+      }
+      request_assignments: {
+        Row: { assigned_by: string; created_at: string; id: string; operational_role: string; request_id: string; staff_user_id: string; updated_at: string }
+        Insert: { assigned_by: string; created_at?: string; id?: string; operational_role?: string; request_id: string; staff_user_id: string; updated_at?: string }
+        Update: { assigned_by?: string; created_at?: string; id?: string; operational_role?: string; request_id?: string; staff_user_id?: string; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "request_assignments_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] },
+        ]
+      }
+      inventory_stock: {
+        Row: {
+          created_at: string
+          product_id: string
+          total_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          total_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          total_quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_unavailability: {
+        Row: { created_at: string; end_date: string | null; id: string; notes: string; product_id: string; quantity: number; reason: string; start_date: string | null; updated_at: string }
+        Insert: { created_at?: string; end_date?: string | null; id?: string; notes?: string; product_id: string; quantity: number; reason?: string; start_date?: string | null; updated_at?: string }
+        Update: { created_at?: string; end_date?: string | null; id?: string; notes?: string; product_id?: string; quantity?: number; reason?: string; start_date?: string | null; updated_at?: string }
+        Relationships: [
+          { foreignKeyName: "inventory_unavailability_product_id_fkey"; columns: ["product_id"]; isOneToOne: false; referencedRelation: "products"; referencedColumns: ["id"] },
         ]
       }
       products: {
@@ -851,9 +937,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_request_if_available: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
+      }
+      place_request_on_option: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: string
+      }
       current_staff_role: {
         Args: never
         Returns: Database["public"]["Enums"]["staff_role"]
+      }
+      expire_due_options: {
+        Args: never
+        Returns: number
+      }
+      start_preparation_list: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: string
+      }
+      register_request_delivery: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
+      }
+      register_request_return: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
+      }
+      close_request: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
       }
       publish_quote_revision: {
         Args: {

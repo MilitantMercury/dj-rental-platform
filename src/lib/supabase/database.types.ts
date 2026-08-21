@@ -329,6 +329,14 @@ export type Database = {
           { foreignKeyName: "preparation_lists_request_id_fkey"; columns: ["request_id"]; isOneToOne: true; referencedRelation: "requests"; referencedColumns: ["id"] },
         ]
       }
+      transport_containers: {
+        Row: { container_type: string; created_at: string; created_by: string; description: string; id: string; notes: string; quantity: number; request_id: string; updated_at: string; updated_by: string | null }
+        Insert: { container_type: string; created_at?: string; created_by: string; description?: string; id?: string; notes?: string; quantity: number; request_id: string; updated_at?: string; updated_by?: string | null }
+        Update: { container_type?: string; created_at?: string; created_by?: string; description?: string; id?: string; notes?: string; quantity?: number; request_id?: string; updated_at?: string; updated_by?: string | null }
+        Relationships: [
+          { foreignKeyName: "transport_containers_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] },
+        ]
+      }
       preparation_items: {
         Row: { created_at: string; delivered_quantity: number; description: string; expected_quantity: number; id: string; notes: string; preparation_list_id: string; prepared_quantity: number; returned_quantity: number; source_request_item_id: string; status: string; updated_at: string; updated_by: string | null }
         Insert: { created_at?: string; delivered_quantity?: number; description: string; expected_quantity: number; id?: string; notes?: string; preparation_list_id: string; prepared_quantity?: number; returned_quantity?: number; source_request_item_id: string; status?: string; updated_at?: string; updated_by?: string | null }
@@ -345,6 +353,12 @@ export type Database = {
         Relationships: [
           { foreignKeyName: "request_assignments_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] },
         ]
+      }
+      request_attachments: {
+        Row: { author_id: string; category: string; created_at: string; file_name: string; id: string; mime_type: string; request_id: string; size_bytes: number; storage_path: string }
+        Insert: { author_id: string; category: string; created_at?: string; file_name: string; id?: string; mime_type: string; request_id: string; size_bytes: number; storage_path: string }
+        Update: { author_id?: string; category?: string; created_at?: string; file_name?: string; id?: string; mime_type?: string; request_id?: string; size_bytes?: number; storage_path?: string }
+        Relationships: [{ foreignKeyName: "request_attachments_request_id_fkey"; columns: ["request_id"]; isOneToOne: false; referencedRelation: "requests"; referencedColumns: ["id"] }]
       }
       inventory_stock: {
         Row: {

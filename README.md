@@ -13,20 +13,27 @@ Sono disponibili:
 - area cliente con accesso isolato alle proprie richieste, preventivi e profilo;
 - preventivi con bozze persistenti, revisioni immutabili, pubblicazione e risposta del cliente;
 - preventivi composti da voci economiche, con possibilità per il gestore di dividere una quantità richiesta in più righe a prezzo diverso;
+- conferma esplicita della pratica accettata riservata all’owner, vincolata alla disponibilità del materiale e registrata nel registro attività;
+- magazzino owner con giacenza aggregata, materiale temporaneamente fuori servizio, margine operativo globale e durata configurabile delle opzioni;
+- opzioni temporanee, verifica atomica della disponibilità alla conferma e copertura interna di eventuale fornitura esterna, mai esposta al cliente;
+- registrazioni economiche interne per caparre, acconti, saldi e rettifiche; una caparra prevista deve risultare registrata prima della conferma;
+- checklist operativa per preparazione, consegna e rientro, con assegnazione esplicita dei collaboratori e senza accesso a prezzi o dati economici;
 - area cliente dei preventivi organizzata per pratica, con storico espandibile delle revisioni pubblicate;
 - consultazione del preventivo pubblicato anche dal dettaglio della pratica owner;
 - profilo cliente privato o Partita IVA, con controlli sui dati fiscali e indirizzi strutturati;
 - tipologie di evento configurabili dal gestore e registro delle attività della pratica.
 
-## Prossimo ciclo: E8 — Magazzino e disponibilità
+## Stato operativo: E8–E10
 
-Il prossimo sviluppo riguarda la disponibilità quantitativa nel tempo: giacenza, materiale fuori servizio, conflitti tra pratiche, opzioni temporanee e margine operativo. Prima di implementarlo restano da definire:
+Il ciclo principale ora segue questi passaggi:
 
-- durata predefinita dell'opzione e relativo comportamento alla scadenza;
-- se lo stato “In attesa acconto” blocca la disponibilità;
-- margine operativo globale o per prodotto/categoria.
+- richiesta e preventivo non bloccano mai il magazzino;
+- opzione e attesa caparra bloccano temporaneamente il materiale;
+- la conferma verifica in modo atomico giacenza, fuori servizio, pratiche sovrapposte e copertura esterna interna;
+- la preparazione genera una checklist snapshot del materiale;
+- consegna, rientro e chiusura richiedono il completamento delle rispettive verifiche operative.
 
-Una richiesta e il carrello non bloccano mai il magazzino; la conferma resta un'azione esplicita del gestore.
+Rimangono da completare in E10: contenitori di trasporto, allegati/fotografie di consegna e restituzione, e assegnazioni operative più avanzate.
 
 ## Avvio locale
 
@@ -54,7 +61,7 @@ Non eseguire il link o il push verso PRODUZIONE senza una verifica esplicita del
 
 ## CI
 
-GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. Nei repository pubblici, dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build; GitHub non offre questa funzione ai repository privati di account personali. Le PR devono avere tutti i controlli verdi prima del merge.
+GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. La cache di build di Next.js viene ripristinata tra le esecuzioni per ridurre i tempi di compilazione. Nei repository pubblici, dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build; GitHub non offre questa funzione ai repository privati di account personali. Le PR devono avere tutti i controlli verdi prima del merge.
 
 ## Verifiche
 

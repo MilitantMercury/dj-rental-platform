@@ -5,6 +5,11 @@ import {
   isArchivedRequestStatus,
   requestStatusLabel,
 } from "@/lib/request-status";
+import {
+  defaultStatusTransitionNote,
+  isAllowedOwnerStatusTransition,
+  ownerStatusTransitions,
+} from "@/lib/request-lifecycle";
 
 describe("etichette degli stati pratica", () => {
   it.each([
@@ -16,7 +21,11 @@ describe("etichette degli stati pratica", () => {
     ["quote_published", "Preventivo inviato"],
     ["changes_requested", "Modifiche richieste"],
     ["accepted", "Accettata"],
+    ["awaiting_deposit", "In attesa caparra"],
     ["confirmed", "Confermata"],
+    ["preparing", "In preparazione"],
+    ["delivered_or_collected", "Consegnata / ritirata"],
+    ["returned", "Restituita"],
     ["closed", "Chiusa"],
   ])("traduce %s", (status, expected) => {
     expect(requestStatusLabel(status)).toBe(expected);
@@ -28,9 +37,14 @@ describe("etichette degli stati pratica", () => {
       "in_review",
       "quote_draft",
       "quote_published",
+      "option",
       "changes_requested",
       "accepted",
+      "awaiting_deposit",
       "confirmed",
+      "preparing",
+      "delivered_or_collected",
+      "returned",
     ]);
     expect(ARCHIVED_REQUEST_STATUSES).toEqual([
       "closed",
@@ -39,5 +53,16 @@ describe("etichette degli stati pratica", () => {
     ]);
     expect(isArchivedRequestStatus("closed")).toBe(true);
     expect(isArchivedRequestStatus("confirmed")).toBe(false);
+  });
+
+  it("consente la conferma e la chiusura soltanto nel giusto ordine", () => {
+    expect(ownerStatusTransitions("received")).toEqual(["in_review", "rejected", "cancelled"]);
+    expect(isAllowedOwnerStatusTransition("received", "in_review")).toBe(true);
+    expect(isAllowedOwnerStatusTransition("accepted", "confirmed")).toBe(false);
+    expect(isAllowedOwnerStatusTransition("confirmed", "closed")).toBe(false);
+  });
+
+  it("registra una nota di audit per gli aggiornamenti manuali", () => {
+    expect(defaultStatusTransitionNote()).toContain("owner");
   });
 });

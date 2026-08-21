@@ -22,6 +22,8 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | D-014 | 2026-08-13 | Nessun pagamento online, fatturazione elettronica, app nativa o magazzino serializzato nell'MVP. | Confini espliciti dell'MVP. |
 | D-015 | 2026-08-17 | In registrazione il cliente sceglie tra privato e Partita IVA. Il privato fornisce nome, cognome e codice fiscale; la Partita IVA fornisce ragione sociale, partita IVA e almeno uno tra PEC e codice destinatario. Telefono e indirizzo sono obbligatori per entrambi. | Raccoglie subito i dati identificativi e di contatto necessari, mostrando soltanto i campi pertinenti al tipo di cliente. |
 | D-016 | 2026-08-19 | L’indirizzo anagrafico del cliente è raccolto in via/piazza, civico, CAP, comune, provincia e nazione (Italia predefinita). Gli indirizzi liberi esistenti restano consultabili fino al successivo aggiornamento del profilo. | Consente dati più ordinati e verificabili senza perdere informazioni degli account già creati. |
+| D-017 | 2026-08-21 | Per E8 l’opzione ha durata iniziale di 48 ore, configurabile dall’owner; “In attesa acconto” blocca la disponibilità e il margine operativo è globale. | Completa le decisioni necessarie al calcolo della disponibilità temporale senza esporre dati interni al cliente. |
+| D-018 | 2026-08-21 | L’eventuale fornitura esterna di materiale è esclusivamente interna: il cliente non vede fornitori, carenze di magazzino, conflitti o l’origine dei pezzi. | Permette di coprire una carenza senza esporre informazioni operative o commerciali interne. |
 
 ## Assunzioni conservative correnti
 
@@ -43,9 +45,6 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 |---|---|---|
 | Q-001 | Nome commerciale, dominio e contatti pubblici. | E2/E3 |
 | Q-005 | Listino: prezzo base o regole per evento e durata. | E2/E7 |
-| Q-006 | Durata predefinita dell'opzione e comportamento alla scadenza. | E8 |
-| Q-007 | Confermare se “In attesa acconto” blocca il magazzino. | E8 |
-| Q-008 | Margine operativo globale oppure per prodotto/categoria. | E8 |
 | Q-009 | PDF preventivo obbligatorio e numerazione desiderata. | E7 |
 | Q-010 | Formati, dimensione e destinatari degli allegati. | E5 |
 | Q-011 | Set di dati esposto nei feed ICS. | E12 |

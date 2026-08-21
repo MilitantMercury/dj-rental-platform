@@ -24,6 +24,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | D-016 | 2026-08-19 | L’indirizzo anagrafico del cliente è raccolto in via/piazza, civico, CAP, comune, provincia e nazione (Italia predefinita). Gli indirizzi liberi esistenti restano consultabili fino al successivo aggiornamento del profilo. | Consente dati più ordinati e verificabili senza perdere informazioni degli account già creati. |
 | D-017 | 2026-08-21 | Per E8 l’opzione ha durata iniziale di 48 ore, configurabile dall’owner; “In attesa acconto” blocca la disponibilità e il margine operativo è globale. | Completa le decisioni necessarie al calcolo della disponibilità temporale senza esporre dati interni al cliente. |
 | D-018 | 2026-08-21 | L’eventuale fornitura esterna di materiale è esclusivamente interna: il cliente non vede fornitori, carenze di magazzino, conflitti o l’origine dei pezzi. | Permette di coprire una carenza senza esporre informazioni operative o commerciali interne. |
+| D-019 | 2026-08-21 | Gli allegati operativi dell’MVP sono privati, limitati a JPG/PNG/WebP/PDF fino a 10 MB, con URL firmati brevi per owner e collaboratori assegnati. | Copre foto e documenti di consegna/rientro senza esporli pubblicamente. |
 
 ## Assunzioni conservative correnti
 

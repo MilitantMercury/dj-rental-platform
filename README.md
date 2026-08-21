@@ -18,6 +18,7 @@ Sono disponibili:
 - opzioni temporanee, verifica atomica della disponibilità alla conferma e copertura interna di eventuale fornitura esterna, mai esposta al cliente;
 - registrazioni economiche interne per caparre, acconti, saldi e rettifiche; una caparra prevista deve risultare registrata prima della conferma;
 - checklist operativa per preparazione, consegna e rientro, con assegnazione esplicita dei collaboratori e senza accesso a prezzi o dati economici;
+- contenitori di trasporto e allegati privati (foto/PDF) di consegna e rientro, accessibili con URL firmati solo al personale operativo autorizzato;
 - area cliente dei preventivi organizzata per pratica, con storico espandibile delle revisioni pubblicate;
 - consultazione del preventivo pubblicato anche dal dettaglio della pratica owner;
 - profilo cliente privato o Partita IVA, con controlli sui dati fiscali e indirizzi strutturati;
@@ -33,7 +34,7 @@ Il ciclo principale ora segue questi passaggi:
 - la preparazione genera una checklist snapshot del materiale;
 - consegna, rientro e chiusura richiedono il completamento delle rispettive verifiche operative.
 
-Rimangono da completare in E10: contenitori di trasporto, allegati/fotografie di consegna e restituzione, e assegnazioni operative più avanzate.
+Rimangono da completare in E10: assegnazioni operative più avanzate e l’eventuale evoluzione della checklist con ulteriori controlli operativi.
 
 ## Avvio locale
 

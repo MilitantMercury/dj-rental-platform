@@ -61,7 +61,7 @@ Non eseguire il link o il push verso PRODUZIONE senza una verifica esplicita del
 
 ## CI
 
-GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. La cache di build di Next.js viene ripristinata tra le esecuzioni per ridurre i tempi di compilazione. Nei repository pubblici, dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build; GitHub non offre questa funzione ai repository privati di account personali. Le PR devono avere tutti i controlli verdi prima del merge.
+GitHub Actions esegue lint, type-check, test, build e test database/RLS con Supabase locale. La cache di build di Next.js, gestita da `actions/cache@v5` su Node 24, viene ripristinata tra le esecuzioni per ridurre i tempi di compilazione: il primo run con una chiave nuova è normalmente un cache miss, mentre i successivi mostrano esplicitamente `Cache Next.js hit=true` nel log. Nei repository pubblici, dopo la build applicativa genera anche un'attestazione firmata di provenienza dell'archivio di build; GitHub non offre questa funzione ai repository privati di account personali. Le PR devono avere tutti i controlli verdi prima del merge.
 
 ## Verifiche
 

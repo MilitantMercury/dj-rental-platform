@@ -34,5 +34,6 @@ test("il catalogo admin è protetto", async ({ page }) => {
 test("il catalogo pubblico è visitabile senza autenticazione", async ({ page }) => {
   await page.goto("/catalogo");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Scegliamo insieme");
+  await expect(page.getByRole("heading", { name: "Trova la soluzione giusta" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Per il tuo setup" })).toBeVisible();
 });

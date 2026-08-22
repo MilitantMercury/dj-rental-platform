@@ -4,6 +4,7 @@ import {
   ARCHIVED_REQUEST_STATUSES,
   isArchivedRequestStatus,
   requestStatusLabel,
+  requestStatusTone,
 } from "@/lib/request-status";
 import {
   defaultStatusTransitionNote,
@@ -53,6 +54,14 @@ describe("etichette degli stati pratica", () => {
     ]);
     expect(isArchivedRequestStatus("closed")).toBe(true);
     expect(isArchivedRequestStatus("confirmed")).toBe(false);
+  });
+
+  it("assegna un tono visivo coerente agli stati", () => {
+    expect(requestStatusTone("received")).toBe("active");
+    expect(requestStatusTone("quote_published")).toBe("attention");
+    expect(requestStatusTone("confirmed")).toBe("operational");
+    expect(requestStatusTone("closed")).toBe("closed");
+    expect(requestStatusTone("cancelled")).toBe("critical");
   });
 
   it("consente la conferma e la chiusura soltanto nel giusto ordine", () => {

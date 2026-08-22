@@ -1,16 +1,26 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { formatEventDate, formatRomeDateTime, formatRomeLongDate } from "@/lib/date-time";
-import { requestStatusDescription, requestStatusLabel } from "@/lib/request-status";
+import { formatEventDateTime, formatRomeDateTime, formatRomeLongDate } from "@/lib/date-time";
+import { requestStatusDescription, requestStatusLabel, requestStatusTone } from "@/lib/request-status";
 import { ownerStatusTransitions } from "@/lib/request-lifecycle";
-import { financialRecordLabel } from "@/lib/financial-records";
+import { ConfirmPracticeForm } from "@/components/confirm-practice-form";
+import { FinancialRecordsSection } from "@/components/financial-records-section";
+import { FinancialSummarySection } from "@/components/financial-summary-section";
+import { calculateFinancialSummary } from "@/lib/financial-summary";
 import { createClient } from "@/lib/supabase/server";
-import { addExternalSupply, addFinancialRecord, assignCollaborator, closeRequest, confirmRequest, createQuoteFromRequest, markRequestAwaitingDeposit, placeOnOption, registerDelivery, registerReturn, startPreparation, updateRequestStatus } from "../actions";
+import { addExternalSupply, assignCollaborator, closeRequest, confirmRequest, createQuoteFromRequest, markRequestAwaitingDeposit, placeOnOption, registerDelivery, registerReturn, startPreparation, updateRequestStatus } from "../actions";
 
 export const dynamic = "force-dynamic";
 
 const responsibilityLabel = (value: string) =>
   value === "owner" ? "A carico del gestore" : "A carico del cliente";
+
+const quoteResponseLabel = (outcome: string) =>
+  outcome === "changes_requested"
+    ? "Richiesta di modifiche"
+    : outcome === "rejected"
+      ? "Motivo del rifiuto"
+      : "Messaggio sulla proposta";
 
 export default async function PracticeDetail({
   params,
@@ -38,7 +48,7 @@ export default async function PracticeDetail({
   const { data: request } = await supabase
     .from("requests")
     .select(
-      "request_code,status,event_type,event_date,event_end_date,venue_name,venue_address,delivery_responsibility,pickup_responsibility,customer_notes,created_at,customer_user_id,customer_email",
+      "request_code,status,event_type,event_start_at,event_end_at,venue_name,venue_address,delivery_responsibility,pickup_responsibility,customer_notes,created_at,customer_user_id,customer_email",
     )
     .eq("id", id)
     .maybeSingle();
@@ -69,7 +79,7 @@ export default async function PracticeDetail({
       .order("created_at", { ascending: false }),
     supabase
       .from("quotes")
-      .select("current_revision_id")
+      .select("id,current_revision_id")
       .eq("request_id", id)
       .maybeSingle(),
     supabase.from("external_supplies").select("id,product_id,supplier_name,quantity,status,internal_notes").eq("request_id", id).order("created_at", { ascending: false }),
@@ -88,11 +98,41 @@ export default async function PracticeDetail({
   const assignments = assignmentsResult.data ?? [];
   const collaboratorNames = new Map(collaborators.map((collaborator) => [collaborator.user_id, collaborator.display_name]));
   const hasPublishedQuote = Boolean(quoteResult.data?.current_revision_id);
+  const canManageFinancialRecords = hasPublishedQuote || financialRecords.length > 0 || [
+    "awaiting_deposit",
+    "confirmed",
+    "preparing",
+    "delivered_or_collected",
+    "returned",
+    "closed",
+  ].includes(request.status);
   const { data: currentRevision } = quoteResult.data?.current_revision_id
-    ? await supabase.from("quote_revisions").select("deposit_cents").eq("id", quoteResult.data.current_revision_id).maybeSingle()
+    ? await supabase.from("quote_revisions").select("deposit_cents,total_cents").eq("id", quoteResult.data.current_revision_id).maybeSingle()
     : { data: null };
+  const { data: quoteRevisions } = quoteResult.data?.id
+    ? await supabase
+        .from("quote_revisions")
+        .select("id,revision_number")
+        .eq("quote_id", quoteResult.data.id)
+    : { data: [] };
+  const quoteRevisionIds = (quoteRevisions ?? []).map((revision) => revision.id);
+  const revisionNumbers = new Map(
+    (quoteRevisions ?? []).map((revision) => [revision.id, revision.revision_number]),
+  );
+  const { data: quoteResponses } = quoteRevisionIds.length
+    ? await supabase
+        .from("quote_responses")
+        .select("revision_id,outcome,comment,created_at")
+        .eq("customer_user_id", request.customer_user_id)
+        .in("revision_id", quoteRevisionIds)
+        .order("created_at", { ascending: false })
+    : { data: [] };
+  const customerQuoteMessages = (quoteResponses ?? []).filter(
+    (response) => response.comment,
+  );
   const requiredDepositCents = currentRevision?.deposit_cents ?? 0;
   const collectedDepositCents = financialRecords.reduce((total, record) => total + (record.record_type === "deposit_received" ? record.amount_cents : record.record_type === "deposit_returned" ? -record.amount_cents : 0), 0);
+  const financialSummary = calculateFinancialSummary(currentRevision?.total_cents ?? 0, financialRecords);
   const actorIds = [...new Set(history.map((entry) => entry.changed_by))];
   const { data: actors } = actorIds.length
     ? await supabase
@@ -108,6 +148,12 @@ export default async function PracticeDetail({
   );
   const products = items.filter((item) => item.item_type === "product");
   const conflicts = (() => { try { return conflitti ? JSON.parse(conflitti) as Array<{ product_id?: string; requested_quantity?: number; available_quantity?: number }> : []; } catch { return []; } })();
+  const suggestedSupply = conflicts.length === 1 && conflicts[0]?.product_id
+    ? {
+      productId: conflicts[0].product_id,
+      quantity: Math.max((conflicts[0].requested_quantity ?? 1) - (conflicts[0].available_quantity ?? 0), 1),
+    }
+    : null;
   const services = items.filter((item) => item.item_type === "service");
   const customerName = customerProfile?.customer_type === "business"
     ? customerProfile.company_name || "Azienda non disponibile"
@@ -125,11 +171,11 @@ export default async function PracticeDetail({
       notePlaceholder: "Facoltativa: istruzioni o accordi sulla caparra.",
       action: markRequestAwaitingDeposit,
     }
-    : request.status === "accepted" || request.status === "awaiting_deposit"
+    : request.status === "accepted"
     ? {
       label: "Conferma pratica",
       title: "Conferma definitiva",
-      text: request.status === "awaiting_deposit" ? `Caparra prevista: ${new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(requiredDepositCents / 100)} · registrata: ${new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(collectedDepositCents / 100)}. La conferma sarà consentita solo quando la caparra sarà coperta e la disponibilità verificata.` : "Il cliente ha accettato il preventivo. Dopo la verifica operativa, conferma definitivamente la pratica.",
+      text: "Il cliente ha accettato il preventivo. Dopo la verifica operativa, conferma definitivamente la pratica.",
       noteLabel: "Nota di conferma",
       notePlaceholder: "Facoltativa: dettagli della conferma.",
       action: confirmRequest,
@@ -140,9 +186,21 @@ export default async function PracticeDetail({
       ? "Stato aggiornato."
       : message === "preventivo-creato"
         ? "Bozza preventivo creata."
+        : message === "disponibilita-insufficiente"
+          ? "La pratica non è stata confermata: il materiale richiesto non è attualmente coperto dalla disponibilità."
+        : message === "fornitura-salvata"
+          ? "Copertura esterna registrata. Se è confermata, sarà considerata nel prossimo controllo di disponibilità."
+          : message === "fornitura-non-salvata"
+            ? "Non è stato possibile registrare la copertura esterna. Riprova."
+            : message === "fornitura-non-valida"
+              ? "Completa correttamente prodotto, fornitore, quantità e stato della copertura esterna."
+      : message === "caparra-non-registrata"
+          ? "La pratica non può essere confermata: registra prima la cauzione effettivamente ricevuta nella sezione Movimenti economici."
+        : message === "pratica-confermata-cauzione-registrata"
+          ? "Cauzione registrata e pratica confermata definitivamente."
+          : message === "cauzione-non-valida"
+            ? "Indica data e metodo di incasso della cauzione."
         : message;
-  const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
-
   return (
     <main className="dashboard shell practice-detail-page">
       <Link href="/area-riservata/pratiche">← Torna alle pratiche</Link>
@@ -157,7 +215,7 @@ export default async function PracticeDetail({
           </p>
         </div>
         <div>
-          <strong className="status-badge">
+          <strong className={`status-badge status-badge--${requestStatusTone(request.status)}`}>
             {requestStatusLabel(request.status)}
           </strong>
           <p className="status-description">
@@ -170,6 +228,46 @@ export default async function PracticeDetail({
         <div className="auth-message" role="status">
           {feedback}
         </div>
+      )}
+
+      <div className="practice-workspace">
+      <div className="practice-workspace-main">
+      {(request.customer_notes || customerQuoteMessages.length > 0) && (
+        <section className="customer-messages">
+          <div className="customer-messages-heading">
+            <div>
+              <p className="detail-label">Comunicazioni</p>
+              <h2>Messaggi del cliente</h2>
+            </div>
+            <span>{Number(Boolean(request.customer_notes)) + customerQuoteMessages.length}</span>
+          </div>
+          <div className="customer-messages-list">
+            {customerQuoteMessages.map((response) => (
+              <article key={`${response.revision_id}-${response.created_at}`}>
+                <div>
+                  <p className="detail-label">
+                    {quoteResponseLabel(response.outcome)} · Revisione {revisionNumbers.get(response.revision_id) ?? "—"}
+                  </p>
+                  <time dateTime={response.created_at}>
+                    {formatRomeDateTime(response.created_at)}
+                  </time>
+                </div>
+                <p>{response.comment}</p>
+              </article>
+            ))}
+            {request.customer_notes && (
+              <article>
+                <div>
+                  <p className="detail-label">Nota alla richiesta</p>
+                  <time dateTime={request.created_at}>
+                    {formatRomeDateTime(request.created_at)}
+                  </time>
+                </div>
+                <p>{request.customer_notes}</p>
+              </article>
+            )}
+          </div>
+        </section>
       )}
 
       <section className="practice-items-section">
@@ -216,6 +314,41 @@ export default async function PracticeDetail({
           </div>
         ) : null}
       </section>
+
+      <div className="practice-detail-grid">
+        <section className="practice-detail-card">
+          <p className="detail-label">Cliente</p>
+          <h2>{customerName}</h2>
+          <dl className="detail-list customer-detail-list">
+            <div><dt>Tipo cliente</dt><dd>{customerProfile?.customer_type === "business" ? "Partita IVA" : "Privato"}</dd></div>
+            <div><dt>Email</dt><dd>{request.customer_email || customer?.email || "—"}</dd></div>
+            <div><dt>Telefono</dt><dd>{customer?.phone || "—"}</dd></div>
+            <div><dt>Indirizzo</dt><dd>{customerProfile?.address || "—"}</dd></div>
+            {customerProfile?.customer_type === "business" ? <><div><dt>Partita IVA</dt><dd>{customerProfile.vat_number || "—"}</dd></div><div><dt>PEC</dt><dd>{customerProfile.pec || "—"}</dd></div><div><dt>Codice destinatario</dt><dd>{customerProfile.recipient_code || "—"}</dd></div></> : <div><dt>Codice fiscale</dt><dd>{customerProfile?.tax_code || "—"}</dd></div>}
+          </dl>
+        </section>
+        <section className="practice-detail-card"><p className="detail-label">Evento</p><dl className="detail-list"><div><dt>Inizio</dt><dd>{formatEventDateTime(request.event_start_at)}</dd></div><div><dt>Fine</dt><dd>{formatEventDateTime(request.event_end_at)}</dd></div></dl></section>
+        <section className="practice-detail-card"><p className="detail-label">Location</p><h2>{request.venue_name}</h2><p>{request.venue_address}</p></section>
+        <section className="practice-detail-card"><p className="detail-label">Logistica</p><dl className="detail-list"><div><dt>Consegna</dt><dd>{responsibilityLabel(request.delivery_responsibility)}</dd></div><div><dt>Ritiro</dt><dd>{responsibilityLabel(request.pickup_responsibility)}</dd></div></dl></section>
+      </div>
+
+      <section className="practice-log">
+        <div className="practice-log-heading"><div><p className="detail-label">Registro attività</p><h2>Storia della pratica</h2></div><span>{history.length + 1} eventi</span></div>
+        <ol className="practice-log-list">
+          {history.map((entry) => <li key={entry.id}><span className="practice-log-marker" aria-hidden="true" /><div className="practice-log-content"><div className="practice-log-top"><strong>Stato modificato: {requestStatusLabel(entry.previous_status ?? "received")} → {requestStatusLabel(entry.new_status)}</strong><time dateTime={entry.created_at}>{formatRomeDateTime(entry.created_at)}</time></div><p>Modifica effettuata da <strong>{actorNames.get(entry.changed_by) ?? "Utente staff"}</strong>.</p>{entry.note && <blockquote>{entry.note}</blockquote>}</div></li>)}
+          <li><span className="practice-log-marker" aria-hidden="true" /><div className="practice-log-content"><div className="practice-log-top"><strong>Richiesta creata</strong><time dateTime={request.created_at}>{formatRomeDateTime(request.created_at)}</time></div><p>Richiesta inviata da <strong>{customerName}</strong>.</p></div></li>
+        </ol>
+      </section>
+
+      </div>
+      <aside className="practice-workspace-actions" aria-label="Azioni della pratica">
+      {request.status === "awaiting_deposit" && (
+        <div className="confirmation-financial-area">
+          <ConfirmPracticeForm requestId={id} outstandingDepositCents={Math.max(requiredDepositCents - collectedDepositCents, 0)} defaultRecordedOn={new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Rome" })} />
+          <FinancialSummarySection quoteTotalCents={currentRevision?.total_cents ?? 0} {...financialSummary} />
+          <FinancialRecordsSection requestId={id} records={financialRecords} defaultRecordedOn={new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Rome" })} />
+        </div>
+      )}
 
       {standardTransitions.length ? (
         <section className="practice-status-panel">
@@ -278,43 +411,16 @@ export default async function PracticeDetail({
       )}
 
       {message === "disponibilita-insufficiente" && conflicts.length > 0 && (
-        <section className="practice-status-panel practice-conflicts"><p className="detail-label">Disponibilità insufficiente · solo owner</p><h2>La pratica non può ancora essere confermata.</h2><p>Adegua la giacenza oppure registra una fornitura esterna confermata per coprire la quantità mancante.</p><ul>{conflicts.map((conflict, index) => <li key={`${conflict.product_id}-${index}`}><strong>{products.find((product) => product.item_id === conflict.product_id)?.description ?? "Prodotto"}</strong><span>Richiesti {conflict.requested_quantity ?? 0} · disponibili {conflict.available_quantity ?? 0}</span></li>)}</ul></section>
+        <section className="practice-status-panel practice-conflicts"><p className="detail-label">Disponibilità insufficiente · solo owner</p><h2>La pratica non può ancora essere confermata.</h2><p>La conferma non è stata completata e non è stata apportata alcuna modifica alla pratica. Copri il materiale mancante con giacenza interna o una fornitura esterna confermata.</p><ul>{conflicts.map((conflict, index) => <li key={`${conflict.product_id}-${index}`}><strong>{products.find((product) => product.item_id === conflict.product_id)?.description ?? "Prodotto"}</strong><span>Richiesti {conflict.requested_quantity ?? 0} · disponibili {conflict.available_quantity ?? 0}</span></li>)}</ul></section>
       )}
 
-      {request.status === "accepted" && products.length > 0 && (
+      {["accepted", "awaiting_deposit"].includes(request.status) && products.length > 0 && (
         <section className="practice-status-panel practice-external-supply">
           <div><p className="detail-label">Copertura esterna · solo owner</p><h2>Materiale da fornitore terzo</h2><p>Questi dati sono interni e non vengono mai mostrati al cliente. Solo le coperture confermate contano nella verifica di disponibilità.</p></div>
           {externalSupplies.length > 0 && <ul className="external-supply-list">{externalSupplies.map((supply) => <li key={supply.id}><strong>{products.find((product) => product.item_id === supply.product_id)?.description ?? "Prodotto"} × {supply.quantity}</strong><span>{supply.supplier_name} · {supply.status === "confirmed" ? "Confermata" : "Da richiedere"}</span>{supply.internal_notes && <small>{supply.internal_notes}</small>}</li>)}</ul>}
-          <form action={addExternalSupply} className="external-supply-form"><input type="hidden" name="requestId" value={id}/><label>Prodotto<select name="productId" required defaultValue=""><option value="" disabled>Seleziona prodotto</option>{products.map((product) => <option key={product.item_id} value={product.item_id}>{product.description}</option>)}</select></label><label>Fornitore<input name="supplierName" required maxLength={160}/></label><label>Quantità<input name="quantity" type="number" min="1" step="1" required/></label><label>Stato<select name="status" defaultValue="requested"><option value="requested">Da richiedere</option><option value="confirmed">Confermata</option></select></label><label>Nota interna<textarea name="internalNotes" rows={2} maxLength={2000}/></label><button type="submit">Registra fornitura</button></form>
+          <form action={addExternalSupply} className="external-supply-form"><input type="hidden" name="requestId" value={id}/><label>Prodotto<select name="productId" required defaultValue={suggestedSupply?.productId ?? ""}><option value="" disabled>Seleziona prodotto</option>{products.map((product) => <option key={product.item_id} value={product.item_id}>{product.description}</option>)}</select></label><label>Fornitore<input name="supplierName" required maxLength={160}/></label><label>Quantità<input name="quantity" type="number" min="1" step="1" required defaultValue={suggestedSupply?.quantity}/></label><label>Stato<select name="status" defaultValue="requested"><option value="requested">Da richiedere</option><option value="confirmed">Confermata</option></select></label><label>Nota interna<textarea name="internalNotes" rows={2} maxLength={2000}/></label><button type="submit">Registra fornitura</button></form>
         </section>
       )}
-
-      <section className="practice-status-panel practice-financial-records">
-        <div>
-          <p className="detail-label">Economia · solo owner</p>
-          <h2>Caparre e incassi</h2>
-          <p>Registra qui i movimenti effettivamente ricevuti o restituiti. Queste informazioni restano interne.</p>
-        </div>
-        {financialRecords.length > 0 ? (
-          <ul className="financial-record-list">
-            {financialRecords.map((record) => (
-              <li key={record.id}>
-                <div><strong>{financialRecordLabel(record.record_type)}</strong><span>{formatEventDate(record.recorded_on)}{record.payment_method ? ` · ${record.payment_method}` : ""}</span>{record.internal_notes && <small>{record.internal_notes}</small>}</div>
-                <strong>{euro.format(record.amount_cents / 100)}</strong>
-              </li>
-            ))}
-          </ul>
-        ) : <p className="financial-record-empty">Nessun movimento registrato.</p>}
-        <form action={addFinancialRecord} className="financial-record-form">
-          <input type="hidden" name="requestId" value={id} />
-          <label>Tipo<select name="recordType" required defaultValue=""><option value="" disabled>Seleziona movimento</option><option value="deposit_received">Caparra incassata</option><option value="deposit_returned">Caparra restituita</option><option value="advance_received">Acconto incassato</option><option value="balance_received">Saldo incassato</option><option value="adjustment">Rettifica</option></select></label>
-          <label>Importo (€)<input name="amount" type="number" min="0" step="0.01" inputMode="decimal" required /></label>
-          <label>Data<input name="recordedOn" type="date" required defaultValue={new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Rome" })} /></label>
-          <label>Metodo<input name="paymentMethod" maxLength={80} placeholder="Es. bonifico, contanti" /></label>
-          <label>Nota interna<textarea name="internalNotes" rows={2} maxLength={2000} /></label>
-          <button type="submit">Registra movimento</button>
-        </form>
-      </section>
 
       {["received", "in_review"].includes(request.status) && (
         <section className="practice-status-panel">
@@ -349,103 +455,16 @@ export default async function PracticeDetail({
         </section>
       )}
 
+      {canManageFinancialRecords && request.status !== "awaiting_deposit" && (
+        <><FinancialSummarySection quoteTotalCents={currentRevision?.total_cents ?? 0} {...financialSummary} /><FinancialRecordsSection requestId={id} records={financialRecords} defaultRecordedOn={new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Rome" })} /></>
+      )}
+
       {request.status === "quote_published" && (
         <section className="practice-status-panel practice-next-action"><p className="detail-label">Opzione temporanea</p><h2>Riserva il materiale per questa pratica.</h2><p>L’opzione blocca la disponibilità fino alla scadenza configurata in Magazzino. Il cliente non vede questa informazione.</p><form action={placeOnOption}><input type="hidden" name="requestId" value={id}/><label>Nota interna<textarea name="note" rows={2} placeholder="Facoltativa"/></label><button type="submit">Metti in opzione →</button></form></section>
       )}
-
-      <div className="practice-detail-grid">
-        <section className="practice-detail-card">
-          <p className="detail-label">Cliente</p>
-          <h2>{customerName}</h2>
-          <dl className="detail-list customer-detail-list">
-            <div><dt>Tipo cliente</dt><dd>{customerProfile?.customer_type === "business" ? "Partita IVA" : "Privato"}</dd></div>
-            <div><dt>Email</dt><dd>{request.customer_email || customer?.email || "—"}</dd></div>
-            <div><dt>Telefono</dt><dd>{customer?.phone || "—"}</dd></div>
-            <div><dt>Indirizzo</dt><dd>{customerProfile?.address || "—"}</dd></div>
-            {customerProfile?.customer_type === "business" ? (
-              <>
-                <div><dt>Partita IVA</dt><dd>{customerProfile.vat_number || "—"}</dd></div>
-                <div><dt>PEC</dt><dd>{customerProfile.pec || "—"}</dd></div>
-                <div><dt>Codice destinatario</dt><dd>{customerProfile.recipient_code || "—"}</dd></div>
-              </>
-            ) : (
-              <div><dt>Codice fiscale</dt><dd>{customerProfile?.tax_code || "—"}</dd></div>
-            )}
-          </dl>
-        </section>
-        <section className="practice-detail-card">
-          <p className="detail-label">Evento</p>
-          <dl className="detail-list">
-            <div><dt>Data inizio</dt><dd>{formatEventDate(request.event_date)}</dd></div>
-            <div><dt>Data fine</dt><dd>{formatEventDate(request.event_end_date)}</dd></div>
-          </dl>
-        </section>
-        <section className="practice-detail-card">
-          <p className="detail-label">Location</p>
-          <h2>{request.venue_name}</h2>
-          <p>{request.venue_address}</p>
-        </section>
-        <section className="practice-detail-card">
-          <p className="detail-label">Logistica</p>
-          <dl className="detail-list">
-            <div><dt>Consegna</dt><dd>{responsibilityLabel(request.delivery_responsibility)}</dd></div>
-            <div><dt>Ritiro</dt><dd>{responsibilityLabel(request.pickup_responsibility)}</dd></div>
-          </dl>
-        </section>
-        {request.customer_notes && (
-          <section className="practice-detail-card practice-detail-notes">
-            <p className="detail-label">Note del cliente</p>
-            <p>{request.customer_notes}</p>
-          </section>
-        )}
+      </aside>
       </div>
 
-      <section className="practice-log">
-        <div className="practice-log-heading">
-          <div>
-            <p className="detail-label">Registro attività</p>
-            <h2>Storia della pratica</h2>
-          </div>
-          <span>{history.length + 1} eventi</span>
-        </div>
-        <ol className="practice-log-list">
-          {history.map((entry) => (
-            <li key={entry.id}>
-              <span className="practice-log-marker" aria-hidden="true" />
-              <div className="practice-log-content">
-                <div className="practice-log-top">
-                  <strong>
-                    Stato modificato: {requestStatusLabel(entry.previous_status ?? "received")} →{" "}
-                    {requestStatusLabel(entry.new_status)}
-                  </strong>
-                  <time dateTime={entry.created_at}>
-                    {formatRomeDateTime(entry.created_at)}
-                  </time>
-                </div>
-                <p>
-                  Modifica effettuata da{" "}
-                  <strong>{actorNames.get(entry.changed_by) ?? "Utente staff"}</strong>.
-                </p>
-                {entry.note && <blockquote>{entry.note}</blockquote>}
-              </div>
-            </li>
-          ))}
-          <li>
-            <span className="practice-log-marker" aria-hidden="true" />
-            <div className="practice-log-content">
-              <div className="practice-log-top">
-                <strong>Richiesta creata</strong>
-                <time dateTime={request.created_at}>
-                  {formatRomeDateTime(request.created_at)}
-                </time>
-              </div>
-              <p>
-                Richiesta inviata da <strong>{customerName}</strong>.
-              </p>
-            </div>
-          </li>
-        </ol>
-      </section>
     </main>
   );
 }

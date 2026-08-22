@@ -787,6 +787,8 @@ export type Database = {
           delivery_responsibility: string
           event_date: string
           event_end_date: string
+          event_end_at: string
+          event_start_at: string
           event_type: string
           id: string
           logistics_mode: string
@@ -812,6 +814,8 @@ export type Database = {
           delivery_responsibility?: string
           event_date: string
           event_end_date: string
+          event_end_at: string
+          event_start_at: string
           event_type: string
           id?: string
           logistics_mode: string
@@ -837,6 +841,8 @@ export type Database = {
           delivery_responsibility?: string
           event_date?: string
           event_end_date?: string
+          event_end_at?: string
+          event_start_at?: string
           event_type?: string
           id?: string
           logistics_mode?: string
@@ -952,7 +958,14 @@ export type Database = {
     }
     Functions: {
       confirm_request_if_available: {
-        Args: { p_note?: string; p_request_id: string }
+        Args: {
+          p_deposit_internal_notes?: string
+          p_deposit_payment_method?: string
+          p_deposit_recorded_on?: string | null
+          p_note?: string
+          p_register_deposit?: boolean
+          p_request_id: string
+        }
         Returns: Json
       }
       place_request_on_option: {
@@ -966,6 +979,16 @@ export type Database = {
       expire_due_options: {
         Args: never
         Returns: number
+      }
+      get_request_financial_summary: {
+        Args: { p_request_id: string }
+        Returns: {
+          cash_collected_cents: number
+          deposit_to_return_cents: number
+          quote_total_cents: number
+          rental_collected_cents: number
+          rental_outstanding_cents: number
+        }[]
       }
       start_preparation_list: {
         Args: { p_note?: string; p_request_id: string }

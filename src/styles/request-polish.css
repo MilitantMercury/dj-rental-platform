@@ -57,6 +57,10 @@
 .practice-card-bottom { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:auto; padding-top:16px; border-top:1px solid #e2ddd2; }
 .practice-card a { font-weight:800; text-decoration:none; }
 .practice-card .status-badge { padding:9px 13px; border:1px solid #11110f; background:var(--accent); color:#11110f; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; box-shadow:3px 3px 0 #11110f; white-space:nowrap; }
+.status-badge.status-badge--attention { background:#ffd166; }
+.status-badge.status-badge--operational { background:#8ec5ff; }
+.status-badge.status-badge--closed { background:#d7d3ca; color:#45423c; box-shadow:3px 3px 0 #77736a; }
+.status-badge.status-badge--critical { background:#ff9b9b; color:#491313; box-shadow:3px 3px 0 #6e2020; }
 @media(max-width:700px){.practices-header{align-items:start;flex-direction:column}.practice-list{grid-template-columns:1fr}.practices-count{width:100%}}
 .practice-detail-page { padding-top:54px; padding-bottom:100px; }
 .practice-detail-header { display:flex; justify-content:space-between; align-items:end; gap:24px; margin:30px 0 46px; }
@@ -84,8 +88,9 @@
 .practice-status-panel select,.practice-status-panel textarea { padding:12px; border:1px solid #c9c4b8; background:#fffdf8; font:inherit; }
 .practice-status-panel button { padding:13px 18px; border:0; background:var(--ink); color:#fff; font:inherit; font-weight:800; cursor:pointer; }
 .practice-lifecycle-action { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,.72fr); gap:32px; align-items:end; border-left:4px solid var(--accent); background:#fffdf8; }.practice-lifecycle-action h2 { margin:0 0 8px; font-size:28px; letter-spacing:-.04em; }.practice-lifecycle-action > div > p:not(.detail-label) { max-width:650px; margin:0; color:#656159; line-height:1.55; }.practice-lifecycle-form { display:grid!important; grid-template-columns:1fr!important; gap:12px!important; }.practice-lifecycle-form textarea { min-height:76px; resize:vertical; }.practice-lifecycle-form button { background:var(--accent); color:#11110f; }
+.customer-messages { margin-bottom:16px; padding:28px; border:1px solid #d7bf78; border-left:5px solid #d7a400; background:#fff9e7; }.customer-messages-heading { display:flex; align-items:end; justify-content:space-between; gap:22px; padding-bottom:20px; border-bottom:1px solid #ead9a9; }.customer-messages-heading h2 { margin:0; font-size:28px; letter-spacing:-.04em; }.customer-messages-heading > span { display:grid; place-items:center; min-width:30px; height:30px; border-radius:50%; background:#d7a400; color:#11110f; font-size:12px; font-weight:900; }.customer-messages-list { display:grid; gap:12px; padding-top:20px; }.customer-messages-list article { padding:16px 18px; border:1px solid #ead9a9; background:#fffdf8; }.customer-messages-list article > div { display:flex; align-items:start; justify-content:space-between; gap:18px; }.customer-messages-list .detail-label { margin:0!important; color:#80640d!important; }.customer-messages-list time { flex:0 0 auto; color:#80640d; font-size:12px; white-space:nowrap; }.customer-messages-list article > p { margin:12px 0 0; color:#484024; line-height:1.55; white-space:pre-wrap; }@media(max-width:700px){.customer-messages{padding:20px}.customer-messages-heading,.customer-messages-list article>div{align-items:start;flex-direction:column;gap:8px}.customer-messages-list time{white-space:normal}}
 .practice-external-supply h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-external-supply > div > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }.external-supply-list { display:grid; gap:8px; margin:20px 0; padding:0; list-style:none; }.external-supply-list li { display:grid; gap:4px; padding:12px 14px; border-left:3px solid var(--accent); background:#fffdf8; }.external-supply-list span,.external-supply-list small { color:#656159; }.external-supply-form { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:12px!important; margin-top:20px!important; }.external-supply-form label:last-of-type { grid-column:span 2; }.external-supply-form button { background:#11110f; color:white; }
-.practice-conflicts { border-left:4px solid #b02a2a; background:#fff8f4; }.practice-conflicts h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-conflicts > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }.practice-conflicts ul { display:grid; gap:8px; margin:18px 0 0; padding:0; list-style:none; }.practice-conflicts li { display:flex; justify-content:space-between; gap:16px; padding:12px 14px; background:white; border:1px solid #e2c7bd; }.practice-conflicts span { color:#7d5042; }
+.practice-conflicts { border-left:4px solid #b02a2a; background:#fff8f4; }.practice-conflicts h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-conflicts > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }.practice-conflicts ul { display:grid; gap:8px; margin:18px 0 0; padding:0; list-style:none; }.practice-conflicts li { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; padding:14px; background:white; border:1px solid #e2c7bd; }.practice-conflicts li strong { overflow-wrap:anywhere; }.practice-conflicts span { color:#7d5042; font-size:14px; }
 .practice-financial-records h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-financial-records > div > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }.financial-record-empty { margin:20px 0; color:#77736a; }.financial-record-list { display:grid; gap:8px; margin:20px 0; padding:0; list-style:none; }.financial-record-list li { display:flex; align-items:start; justify-content:space-between; gap:18px; padding:14px; border-left:3px solid var(--accent); background:#fffdf8; }.financial-record-list li > div { display:grid; gap:4px; }.financial-record-list span,.financial-record-list small { color:#656159; }.financial-record-form { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:12px!important; margin-top:20px!important; }.financial-record-form label:last-of-type { grid-column:span 2; }.financial-record-form button { background:#11110f; color:white; }
 .practice-assignment-panel h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }.practice-assignment-panel > div > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }.practice-assignment-panel ul { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; padding:0; list-style:none; }.practice-assignment-panel li { display:flex; gap:8px; align-items:center; padding:9px 12px; background:#fffdf8; border:1px solid #c9c4b8; }.practice-assignment-panel li span { color:#656159; font-size:12px; }.assignment-form { display:grid!important; grid-template-columns:minmax(0,1fr) minmax(0,.6fr) auto!important; gap:12px!important; margin-top:18px!important; }.assignment-form button { background:#11110f; color:white; }
 .practice-items-section { margin-bottom:16px; padding:28px; border:1px solid #c9c4b8; background:#fffdf8; }
@@ -119,7 +124,79 @@
 @media (max-width:700px) { .quote-editor-grid { grid-template-columns:1fr; }.quote-editor-grid > strong { display:none; }.quote-editor-row { display:grid; gap:10px; padding:18px 0; border-top:1px solid #e2ddd2; }.quote-editor-row::before { content:"Voce del preventivo"; color:#77736a; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.quote-editor-grid output { text-align:left; }.quote-quantity input { width:72px; flex-basis:72px; } }
 @media(max-width:700px){.practice-log{padding:20px}.practice-log-heading,.practice-log-top{align-items:start;flex-direction:column;gap:8px}.practice-log-top time{white-space:normal}}
 .auth-form select { width:100%; padding:14px; border:1px solid #4b4a43; background:#11110f; color:#fff; font:inherit; }
+.request-card input[type="datetime-local"] { padding-right:48px; color-scheme:dark; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M8 2v4M16 2v4M3 10h18'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; background-size:18px; }
+.request-card input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity:0; pointer-events:none; }
+.practice-detail-header .status-badge.status-badge--attention { background:#ffd166; }
+.practice-detail-header .status-badge.status-badge--operational { background:#8ec5ff; }
+.practice-detail-header .status-badge.status-badge--closed { background:#d7d3ca; color:#45423c; box-shadow:4px 4px 0 #77736a; }
+.practice-detail-header .status-badge.status-badge--critical { background:#ff9b9b; color:#491313; box-shadow:4px 4px 0 #6e2020; }
+.practice-financial-records { border-left:4px solid #3f3d37; background:#ebe6dc; }
+.financial-summary-section { border-left:4px solid var(--accent); background:#fffdf8; }
+.financial-summary-section h2 { margin:0 0 18px; font-size:27px; letter-spacing:-.04em; }
+.financial-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0; }
+.financial-summary > div { display:grid; gap:5px; padding:14px; border:1px solid #c9c4b8; background:#f1ece2; }
+.financial-summary dt { color:#77736a; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.financial-summary dd { margin:0; font-size:22px; font-weight:900; letter-spacing:-.04em; }
+.financial-summary small { color:#656159; font-size:12px; line-height:1.35; }
+.financial-record-list { margin:24px 0; }
+.financial-record-list li { border:1px solid #c9c4b8; border-left:4px solid #3f3d37; }
+.financial-record-entry { border-top:1px solid #c9c4b8; }
+.confirmation-financial-area { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:16px; margin-bottom:16px; align-items:start; }
+.confirmation-financial-area .practice-status-panel { margin:0; }
+.practice-confirmation-panel { border-left:4px solid var(--accent); background:#fffdf8; }
+.practice-confirmation-panel h2 { margin:0 0 8px; font-size:27px; letter-spacing:-.04em; }
+.practice-confirmation-panel > p:not(.detail-label) { margin:0; color:#656159; line-height:1.55; }
+.confirm-deposit-check { display:flex!important; align-items:flex-start; gap:10px; padding:13px; border:1px solid #c9c4b8; background:#f1ece2; font-size:14px!important; line-height:1.4; cursor:pointer; }
+.confirm-deposit-check input { width:18px; height:18px; margin:1px 0 0; accent-color:var(--accent); }
+.confirm-deposit-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.confirm-deposit-fields label:last-child { grid-column:1 / -1; }
+.practice-status-panel input:not([type]),
+.practice-status-panel input[type="text"],
+.practice-status-panel input[type="date"],
+.practice-status-panel input[type="number"] { box-sizing:border-box; width:100%; min-height:46px; padding:11px 13px; border:1px solid #4b4a43; border-radius:0; background:#fffdf8; color:#11110f; font:inherit; font-weight:650; outline-offset:3px; }
+.practice-status-panel input:not([type])::placeholder,
+.practice-status-panel input[type="text"]::placeholder { color:#77736a; opacity:1; }
+.practice-status-panel input:not([type]):focus,
+.practice-status-panel input[type="text"]:focus,
+.practice-status-panel input[type="date"]:focus,
+.practice-status-panel input[type="number"]:focus { border-color:#11110f; outline:2px solid var(--accent); }
+.practice-confirmation-panel button:disabled { cursor:not-allowed; opacity:.45; }
+@media(max-width:900px){.confirmation-financial-area{grid-template-columns:1fr}}
+@media(max-width:700px){.confirm-deposit-fields{grid-template-columns:1fr}.confirm-deposit-fields label:last-child{grid-column:auto}}
+.financial-record-entry summary { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:15px 0; cursor:pointer; font-weight:900; list-style:none; }
+.financial-record-entry summary::-webkit-details-marker { display:none; }
+.financial-record-entry summary span { display:grid; place-items:center; width:24px; height:24px; border:1px solid #11110f; background:var(--accent); font-size:18px; line-height:1; }
+.financial-record-entry[open] summary span { transform:rotate(45deg); }
+.financial-record-form { grid-template-columns:repeat(3,minmax(0,1fr))!important; grid-template-areas:"type amount date" "method notes notes" "action action action"; padding-top:8px; }
+.financial-record-form .financial-record-type { grid-area:type; }
+.financial-record-form .financial-record-amount { grid-area:amount; }
+.financial-record-form .financial-record-date { grid-area:date; }
+.financial-record-form .financial-record-method { grid-area:method; }
+.financial-record-form .financial-record-notes { grid-area:notes; }
+.financial-record-form .financial-record-action { grid-area:action; justify-self:start; min-width:260px; background:var(--accent); color:#11110f; }
+.financial-record-form textarea { min-height:88px; resize:vertical; }
+@media(max-width:700px){.financial-record-form{grid-template-columns:1fr!important;grid-template-areas:"type" "amount" "date" "method" "notes" "action"}.financial-record-form .financial-record-action{width:100%;min-width:0}}
 @media(max-width:700px){.practice-detail-header{align-items:start;flex-direction:column}.practice-detail-grid{grid-template-columns:1fr}.practice-detail-notes{grid-column:auto}}
+@media(min-width:1080px){
+  .practice-workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(350px,420px); gap:28px; align-items:start; }
+  .practice-workspace-main { min-width:0; }
+  .practice-workspace-actions { min-width:0; }
+  .practice-workspace-actions .practice-status-panel form { grid-template-columns:1fr; }
+  .practice-workspace-actions .practice-status-panel.practice-lifecycle-action { grid-template-columns:1fr; gap:20px; align-items:stretch; }
+  .practice-workspace-actions .confirmation-financial-area { display:grid; grid-template-columns:1fr; margin-bottom:16px; }
+  .practice-workspace-actions .confirmation-financial-area .practice-financial-records { max-height:680px; overflow:auto; }
+  .practice-workspace-main .practice-detail-grid { grid-template-columns:1fr; }
+  .practice-workspace-actions .external-supply-form { grid-template-columns:repeat(2,minmax(0,1fr))!important; grid-template-areas:"product product" "supplier quantity" "status status" "notes notes" "action action"; }
+  .practice-workspace-actions .external-supply-form label:nth-of-type(1){grid-area:product}.practice-workspace-actions .external-supply-form label:nth-of-type(2){grid-area:supplier}.practice-workspace-actions .external-supply-form label:nth-of-type(3){grid-area:quantity}.practice-workspace-actions .external-supply-form label:nth-of-type(4){grid-area:status}.practice-workspace-actions .external-supply-form label:nth-of-type(5){grid-area:notes}.practice-workspace-actions .external-supply-form button{grid-area:action;width:100%}
+  .practice-workspace-actions .financial-record-form { grid-template-columns:repeat(2,minmax(0,1fr))!important; grid-template-areas:"type amount" "date method" "notes notes" "action action"; }
+  .practice-workspace-actions .financial-record-form .financial-record-action { width:100%; min-width:0; }
+  .practice-workspace-actions .financial-summary { grid-template-columns:1fr; }
+  .practice-workspace-actions .assignment-form { grid-template-columns:1fr!important; grid-template-areas:"collaborator" "role" "action"; }
+  .practice-workspace-actions .assignment-form label:nth-of-type(1) { grid-area:collaborator; }
+  .practice-workspace-actions .assignment-form label:nth-of-type(2) { grid-area:role; }
+  .practice-workspace-actions .assignment-form button { grid-area:action; width:100%; }
+}
+@media(max-width:700px){.financial-summary{grid-template-columns:1fr}}
 .reserved-page { padding-top:54px; padding-bottom:100px; }
 .reserved-header { margin:28px 0 44px; }
 .reserved-header h1 { margin:12px 0 0; font-size:clamp(54px,8vw,96px); }

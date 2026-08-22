@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { formatEventDate } from "@/lib/date-time";
+import { formatEventDateTime } from "@/lib/date-time";
 import { createClient } from "@/lib/supabase/server";
 import { transportContainerLabel } from "@/lib/transport-containers";
 import { addTransportContainer, updatePreparationItem } from "./actions";
@@ -17,7 +17,7 @@ export default async function OperationalChecklist({ params, searchParams }: { p
   const { data: staff } = await supabase.from("staff_profiles").select("role,display_name").eq("user_id", user.id).maybeSingle();
   if (!staff) redirect("/area-riservata");
   const [{ data: request }, { data: list }] = await Promise.all([
-    supabase.from("requests").select("request_code,event_type,event_date,event_end_date,venue_name,status").eq("id", id).maybeSingle(),
+    supabase.from("requests").select("request_code,event_type,event_start_at,event_end_at,venue_name,status").eq("id", id).maybeSingle(),
     supabase.from("preparation_lists").select("id,status,started_at").eq("request_id", id).maybeSingle(),
   ]);
   if (!request || !list) notFound();
@@ -32,7 +32,7 @@ export default async function OperationalChecklist({ params, searchParams }: { p
 
   return <main className="dashboard shell operational-page">
     <Link href={`/area-riservata/pratiche/${id}`}>← Torna alla pratica</Link>
-    <header className="operational-header"><div><p className="eyebrow dark">Checklist operativa</p><h1>{request.event_type}</h1><p>{request.request_code} · {formatEventDate(request.event_date)} → {formatEventDate(request.event_end_date)} · {request.venue_name}</p></div><strong>{preparedCount}/{listItems.length} pronti</strong></header>
+    <header className="operational-header"><div><p className="eyebrow dark">Checklist operativa</p><h1>{request.event_type}</h1><p>{request.request_code} · {formatEventDateTime(request.event_start_at)} → {formatEventDateTime(request.event_end_at)} · {request.venue_name}</p></div><strong>{preparedCount}/{listItems.length} pronti</strong></header>
     {message && <div className="auth-message" role="status">{message === "checklist-aggiornata" ? "Checklist aggiornata." : message.replaceAll("-", " ")}</div>}
     <section className="operational-intro"><div><p className="detail-label">Preparazione</p><h2>Materiale della pratica</h2><p>Compila solo le quantità effettivamente preparate, consegnate e rientrate. Prezzi e movimenti economici non sono disponibili qui.</p></div><span>{staff.role === "owner" ? "Owner" : "Collaboratore"}</span></section>
     <div className="operational-list">

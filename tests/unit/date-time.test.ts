@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatEventDate,
+  formatEventDateTime,
   formatRomeDateTime,
   formatRomeLongDate,
 } from "@/lib/date-time";
@@ -23,6 +24,12 @@ describe("formattazione date Europe/Rome", () => {
     );
     expect(formatRomeLongDate("2026-08-17T22:30:00.000Z")).toBe(
       "18 agosto 2026",
+    );
+  });
+
+  it("formatta data e ora dell'evento nella zona Europe/Rome", () => {
+    expect(formatEventDateTime("2026-08-17T16:45:00.000Z")).toBe(
+      "17 ago 2026, 18:45",
     );
   });
 

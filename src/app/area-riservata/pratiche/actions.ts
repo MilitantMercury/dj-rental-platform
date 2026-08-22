@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calculateQuoteTotals, euroToCents } from "@/lib/quote-pricing";
@@ -52,17 +53,28 @@ export async function updateRequestStatus(data: FormData) {
 export async function confirmRequest(data: FormData) {
   const requestId = String(data.get("requestId") ?? "");
   const note = String(data.get("note") ?? "").trim();
+  const registerDeposit = data.get("registerDeposit") === "on";
+  const depositRecordedOn = String(data.get("depositRecordedOn") ?? "");
+  const depositPaymentMethod = String(data.get("depositPaymentMethod") ?? "").trim();
+  const depositInternalNotes = String(data.get("depositInternalNotes") ?? "").trim();
+  if (registerDeposit && (!/^\d{4}-\d{2}-\d{2}$/.test(depositRecordedOn) || !depositPaymentMethod || depositPaymentMethod.length > 80 || depositInternalNotes.length > 2000)) {
+    redirect(`/area-riservata/pratiche/${requestId}?message=cauzione-non-valida`);
+  }
   const supabase = await requireOwner(requestId);
   const { data: result, error } = await supabase.rpc("confirm_request_if_available", {
     p_request_id: requestId,
     p_note: note,
+    p_register_deposit: registerDeposit,
+    p_deposit_recorded_on: registerDeposit ? depositRecordedOn : null,
+    p_deposit_payment_method: depositPaymentMethod,
+    p_deposit_internal_notes: depositInternalNotes,
   });
 
   const confirmed = Boolean(result && typeof result === "object" && "confirmed" in result && result.confirmed);
   const reason = result && typeof result === "object" && "reason" in result ? result.reason : "";
   const conflicts = result && typeof result === "object" && "conflicts" in result ? result.conflicts : [];
   const conflictQuery = !confirmed && Array.isArray(conflicts) ? `&conflitti=${encodeURIComponent(JSON.stringify(conflicts))}` : "";
-  redirect(`/area-riservata/pratiche/${requestId}?message=${error ? "errore-conferma" : confirmed ? "pratica-confermata" : reason === "caparra_non_registrata" ? "caparra-non-registrata" : "disponibilita-insufficiente"}${conflictQuery}`);
+  redirect(`/area-riservata/pratiche/${requestId}?message=${error ? "errore-conferma" : confirmed ? registerDeposit ? "pratica-confermata-cauzione-registrata" : "pratica-confermata" : reason === "caparra_non_registrata" ? "caparra-non-registrata" : reason === "cauzione_non_valida" ? "cauzione-non-valida" : "disponibilita-insufficiente"}${conflictQuery}`);
 }
 
 export async function markRequestAwaitingDeposit(data: FormData) {
@@ -145,6 +157,21 @@ export async function addFinancialRecord(data: FormData) {
     redirect(`/area-riservata/pratiche/${requestId}?message=registrazione-economica-non-valida`);
   }
   const supabase = await requireOwner(requestId);
+  const { data: quote } = await supabase
+    .from("quotes")
+    .select("current_revision_id")
+    .eq("request_id", requestId)
+    .maybeSingle();
+  const { data: revision } = quote?.current_revision_id
+    ? await supabase
+        .from("quote_revisions")
+        .select("status")
+        .eq("id", quote.current_revision_id)
+        .maybeSingle()
+    : { data: null };
+  if (revision?.status !== "published") {
+    redirect(`/area-riservata/pratiche/${requestId}?message=economia-non-disponibile`);
+  }
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/accesso");
   const { error } = await supabase.from("financial_records").insert({
@@ -156,6 +183,10 @@ export async function addFinancialRecord(data: FormData) {
     internal_notes: internalNotes,
     recorded_by: user.id,
   });
+  if (!error) {
+    revalidatePath(`/area-riservata/pratiche/${requestId}`);
+    revalidatePath(`/area-riservata/richieste/${requestId}`);
+  }
   redirect(`/area-riservata/pratiche/${requestId}?message=${error ? "registrazione-economica-non-salvata" : "registrazione-economica-salvata"}`);
 }
 

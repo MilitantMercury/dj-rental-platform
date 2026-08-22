@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { formatEventDate, formatRomeDateTime } from "@/lib/date-time";
-import { requestStatusLabel } from "@/lib/request-status";
+import { formatEventDateTime, formatRomeDateTime } from "@/lib/date-time";
+import { requestStatusLabel, requestStatusTone } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
 import { respondToQuote } from "./actions";
 
@@ -28,7 +28,7 @@ export default async function CustomerQuotes({ searchParams }: { searchParams: P
   const { data: quotes } = await supabase.from("quotes").select("id,request_id,current_revision_id");
   const quoteIds = (quotes ?? []).map((quote) => quote.id);
   const requestIds = (quotes ?? []).map((quote) => quote.request_id);
-  const { data: requests } = requestIds.length ? await supabase.from("requests").select("id,request_code,status,event_type,event_date,event_end_date,venue_name,venue_address").in("id", requestIds) : { data: [] };
+  const { data: requests } = requestIds.length ? await supabase.from("requests").select("id,request_code,status,event_type,event_start_at,event_end_at,venue_name,venue_address").in("id", requestIds) : { data: [] };
   const { data: revisions } = quoteIds.length ? await supabase.from("quote_revisions").select("id,quote_id,revision_number,total_cents,deposit_cents,conditions,published_at").in("quote_id", quoteIds).eq("status", "published").order("published_at", { ascending: false }) : { data: [] };
   const revisionIds = (revisions ?? []).map((revision) => revision.id);
   const { data: responses } = revisionIds.length ? await supabase.from("quote_responses").select("revision_id,outcome,comment,created_at").eq("customer_user_id", user.id).in("revision_id", revisionIds) : { data: [] };
@@ -48,7 +48,7 @@ export default async function CustomerQuotes({ searchParams }: { searchParams: P
       const currentRevision = requestRevisions.find((revision) => revision.id === quote.current_revision_id);
       const latestRevision = currentRevision ?? requestRevisions[0];
       return <details className="quote-request" key={quote.id} open={expandedRequestId === request.id}>
-        <summary><div className="quote-request-title"><p className="detail-label">{request.request_code}</p><h2>{request.event_type}</h2><p>{formatEventDate(request.event_date)} → {formatEventDate(request.event_end_date)} · {request.venue_name}</p></div><div className="quote-request-summary-meta"><strong>{euro.format(latestRevision.total_cents / 100)}</strong><span className="status-badge">{requestStatusLabel(request.status)}</span><span className="quote-request-expand" aria-hidden="true" /></div></summary>
+        <summary><div className="quote-request-title"><p className="detail-label">{request.request_code}</p><h2>{request.event_type}</h2><p>{formatEventDateTime(request.event_start_at)} → {formatEventDateTime(request.event_end_at)} · {request.venue_name}</p></div><div className="quote-request-summary-meta"><strong>{euro.format(latestRevision.total_cents / 100)}</strong><span className={`status-badge status-badge--${requestStatusTone(request.status)}`}>{requestStatusLabel(request.status)}</span><span className="quote-request-expand" aria-hidden="true" /></div></summary>
         <div className="quote-request-body"><div className="quote-request-body-heading"><div><p className="detail-label">Storico preventivi</p><h3>{requestRevisions.length} {requestRevisions.length === 1 ? "revisione pubblicata" : "revisioni pubblicate"}</h3></div><Link className="quote-request-link" href={`/area-riservata/richieste/${request.id}`} target="_blank" rel="noreferrer">Apri richiesta <span aria-hidden="true">↗</span></Link></div><div className="quote-revision-list">{requestRevisions.map((revision) => {
           const response = responseByRevision.get(revision.id);
           const isCurrent = revision.id === quote.current_revision_id;

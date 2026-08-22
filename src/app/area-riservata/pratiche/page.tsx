@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { customerDisplayName } from "@/lib/customer-name";
-import { formatEventDate } from "@/lib/date-time";
+import { formatEventDateTime } from "@/lib/date-time";
 import {
   ARCHIVED_REQUEST_STATUSES,
   isArchivedRequestStatus,
   requestStatusLabel,
+  requestStatusTone,
 } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
 import { expireDueOptions } from "./actions";
@@ -42,7 +43,7 @@ export default async function PracticesPage({
   const { data: requests } = await supabase
     .from("requests")
     .select(
-      "id,request_code,status,event_type,event_date,event_end_date,venue_name,venue_address,logistics_mode,customer_user_id,customer_email",
+      "id,request_code,status,event_type,event_start_at,event_end_at,venue_name,venue_address,logistics_mode,customer_user_id,customer_email",
     )
     .order("created_at", { ascending: false });
 
@@ -143,7 +144,7 @@ export default async function PracticesPage({
             <article className="practice-card" key={request.id}>
               <div className="practice-card-top">
                 <span className="card-kicker">{request.request_code}</span>
-                <strong className="status-badge">
+                <strong className={`status-badge status-badge--${requestStatusTone(request.status)}`}>
                   {requestStatusLabel(request.status)}
                 </strong>
               </div>
@@ -153,8 +154,8 @@ export default async function PracticesPage({
                 <strong>{customerName}</strong>
               </div>
               <p>
-                {formatEventDate(request.event_date)} →{" "}
-                {formatEventDate(request.event_end_date)}
+                {formatEventDateTime(request.event_start_at)} →{" "}
+                {formatEventDateTime(request.event_end_at)}
                 <br />
                 <strong>{request.venue_name}</strong>
                 <br />

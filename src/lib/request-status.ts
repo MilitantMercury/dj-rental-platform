@@ -5,3 +5,10 @@ export const ARCHIVED_REQUEST_STATUSES = ["closed", "cancelled", "rejected"] as 
 export function requestStatusLabel(status: string) { return REQUEST_STATUS_LABELS[status] ?? status; }
 export function requestStatusDescription(status: string) { return REQUEST_STATUS_DESCRIPTIONS[status] ?? "Stato della pratica."; }
 export function isArchivedRequestStatus(status: string) { return ARCHIVED_REQUEST_STATUSES.includes(status as (typeof ARCHIVED_REQUEST_STATUSES)[number]); }
+export function requestStatusTone(status: string) {
+  if (status === "closed") return "closed";
+  if (["rejected", "cancelled", "expired"].includes(status)) return "critical";
+  if (["confirmed", "preparing", "delivered_or_collected", "returned"].includes(status)) return "operational";
+  if (["quote_published", "option", "awaiting_deposit", "changes_requested"].includes(status)) return "attention";
+  return "active";
+}

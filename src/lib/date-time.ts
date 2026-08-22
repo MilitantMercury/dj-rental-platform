@@ -41,3 +41,7 @@ export function formatRomeDateTime(value: string | Date) {
     typeof value === "string" ? new Date(value) : value,
   );
 }
+
+export function formatEventDateTime(value: string | Date) {
+  return formatRomeDateTime(value);
+}

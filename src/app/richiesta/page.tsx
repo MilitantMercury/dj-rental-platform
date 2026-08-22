@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DateTimeInput } from "@/components/date-time-input";
 import { redirect } from "next/navigation";
 import { EventTypeField } from "@/components/event-type-field";
 import { ITALIAN_PROVINCES } from "@/lib/domain/italian-provinces";
@@ -19,8 +20,8 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
     <form className="auth-form request-form" action={createRequest}>
       <section className="request-section"><h2 className="request-section-title">Evento e date</h2><div className="request-event-grid">
         <EventTypeField types={(eventTypes ?? []).map((item) => item.name)} />
-        <label>Data inizio<input name="eventDate" type="date" required /></label>
-        <label>Data fine<input name="eventEndDate" type="date" required /></label>
+        <label>Data e ora inizio<DateTimeInput name="eventStartAt" required /></label>
+        <label>Data e ora fine<DateTimeInput name="eventEndAt" required /></label>
       </div></section>
       <fieldset className="request-section"><legend className="request-section-title">Location</legend><div className="request-location-grid">
         <label className="request-location-full">Nome della location<input name="venueName" required maxLength={160} placeholder="Es. Villa Rossi" /></label>

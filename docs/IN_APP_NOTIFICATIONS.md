@@ -16,4 +16,4 @@ I record sono creati da trigger database con una chiave evento idempotente. Tito
 
 RLS consente a ogni utente autenticato di leggere esclusivamente le proprie notifiche. L’unica colonna modificabile dal destinatario è `read_at`; creazione e modifica del contenuto non sono concesse al ruolo `authenticated`.
 
-La campanella mostra il numero di notifiche non lette. La pagina `/area-riservata/notifiche` espone le ultime 100 notifiche e permette di segnarle come lette singolarmente o in blocco.
+La campanella mostra il numero di notifiche non lette. La pagina `/area-riservata/notifiche` espone le ultime 100 notifiche e permette di segnarle come lette singolarmente o in blocco e di riportare una notifica letta allo stato non letto.

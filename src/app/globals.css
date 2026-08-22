@@ -13,6 +13,7 @@
 @import "../styles/quotes.css";
 @import "../styles/notifications.css";
 @import "../styles/catalog-media.css";
+@import "../styles/catalog-public.css";
 .catalog-header-actions { display: none !important; }
 
 :root { --ink: #11110f; --paper: #f4f0e8; --accent: #d9ff43; --muted: #a8a69e; }

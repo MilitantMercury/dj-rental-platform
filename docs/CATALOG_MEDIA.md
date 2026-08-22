@@ -31,3 +31,7 @@ L’ordine di categorie, prodotti, servizi e immagini prodotto viene modificato 
 L’owner può modificare nome, slug, categoria, descrizione, prezzo indicativo e i campi specifici di prodotti e servizi senza ricreare l’elemento. L’anteprima privata sotto `/area-riservata/catalogo/anteprima/...` verifica nuovamente ruolo e sessione lato server e permette di controllare anche le bozze senza renderle pubbliche.
 
 La galleria prodotto supporta trascinamento per mouse e puntatore; al rilascio invia l’intera sequenza a `reorder_product_images`, che verifica appartenenza, duplicati e completezza prima di aggiornarla atomicamente. I pulsanti Su/Giù restano disponibili come fallback da tastiera.
+
+## Esperienza del catalogo pubblico
+
+Il catalogo pubblico presenta le categorie in una fascia fotografica orizzontale a riga singola. La fascia resta compatta al crescere del catalogo ed è scorribile con mouse, trackpad, tastiera e touch; il filtro selezionato usa un URL condivisibile. Prodotti e servizi usano griglie responsive e, quando una sezione contiene un solo elemento, una card editoriale orizzontale su desktop. In assenza di un media associato viene mostrato un fallback esplicito, senza riutilizzare automaticamente immagini appartenenti ad altre entità.

@@ -8,7 +8,7 @@ test("la pagina iniziale è disponibile e presenta il servizio", async ({ page }
     page.getByRole("heading", { level: 1, name: /Il tuo evento,\s*con il suono giusto\./ }),
   ).toBeVisible();
   await expect(page.getByText(/non equivale a una prenotazione/i)).toBeVisible();
-  await expect(page.getByRole("link", { name: "Registrati" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Esplora il catalogo" })).toBeVisible();
 });
 
 test("registrazione e accesso sono disponibili", async ({ page }) => {
@@ -33,6 +33,6 @@ test("il catalogo admin è protetto", async ({ page }) => {
 
 test("il catalogo pubblico è visitabile senza autenticazione", async ({ page }) => {
   await page.goto("/catalogo");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Attrezzatura e servizi");
-  await expect(page.getByRole("heading", { name: "Attrezzatura", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Scegliamo insieme");
+  await expect(page.getByRole("heading", { name: "Per il tuo setup" })).toBeVisible();
 });

@@ -13,13 +13,14 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const [staffResult, profileResult, customerResult] = user
+  const [staffResult, profileResult, customerResult, notificationResult] = user
     ? await Promise.all([
         supabase.from("staff_profiles").select("role,display_name").eq("user_id", user.id).maybeSingle(),
         supabase.from("profiles").select("first_name").eq("user_id", user.id).maybeSingle(),
         supabase.from("customer_profiles").select("customer_type,company_name").eq("user_id", user.id).maybeSingle(),
+        supabase.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null),
       ])
-    : [{ data: null }, { data: null }, { data: null }];
+    : [{ data: null }, { data: null }, { data: null }, { count: 0 }];
   const staff = staffResult.data;
   const profile = profileResult.data;
   const customer = customerResult.data;
@@ -29,7 +30,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : user ? "Cliente" : undefined;
   return (
     <html lang="it" data-scroll-behavior="smooth" className="h-full antialiased">
-      <body className="flex min-h-full flex-col"><SiteHeader userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} />{children}</body>
+      <body className="flex min-h-full flex-col"><SiteHeader userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} unreadNotifications={notificationResult.count ?? 0} />{children}</body>
     </html>
   );
 }

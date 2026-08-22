@@ -47,7 +47,7 @@ declare
   neighbor_order integer;
   product_scope uuid;
 begin
-  if (select public.current_staff_role()) <> 'owner' then
+  if (select public.current_staff_role()) is distinct from 'owner' then
     raise exception 'Operazione non autorizzata' using errcode = '42501';
   end if;
   if direction not in (-1, 1) or target_type not in ('categories', 'products', 'services', 'product_images') then

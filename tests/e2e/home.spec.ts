@@ -31,6 +31,10 @@ test("il catalogo admin è protetto", async ({ page }) => {
   await expect(page).toHaveURL(/\/accesso$/);
 });
 
+test("l’anteprima catalogo owner è protetta", async ({ page }) => {
+  await page.goto("/area-riservata/catalogo/anteprima/products/10000000-0000-0000-0000-000000000001");
+  await expect(page).toHaveURL(/\/accesso$/);
+});
 test("il catalogo pubblico è visitabile senza autenticazione", async ({ page }) => {
   await page.goto("/catalogo");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Scegliamo insieme");

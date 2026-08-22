@@ -8,3 +8,12 @@
 .catalog-state.is-published { background: #d9efdf; color: #19552b; }
 .catalog-state.is-draft { background: #eee8da; color: #685d43; }
 @media (max-width: 650px) { .catalog-list li { align-items: stretch; flex-direction: column; } .catalog-item-controls { justify-items: stretch; } .catalog-item-controls form { flex-wrap: wrap; } }
+
+.catalog-editor { margin-top: 8px; border-top: 1px solid #e2ddd2; padding-top: 8px; }
+.catalog-editor summary { cursor: pointer; color: #4f4a40; font-size: 12px; font-weight: 800; }
+.catalog-editor .catalog-form { margin-top: 12px; min-width: min(320px, 75vw); }
+.catalog-editor-actions { display: flex; align-items: center; gap: 10px; }
+.catalog-editor-actions a { padding: 10px; border: 1px solid #c9c4b8; color: var(--ink); font-size: 12px; font-weight: 800; text-decoration: none; }
+.catalog-preview-banner { margin: 20px 0; padding: 12px 16px; background: #eee8da; color: #534a36; font-weight: 800; }
+.catalog-gallery-item[draggable="true"] { cursor: grab; }
+.catalog-gallery-item[draggable="true"]:active { cursor: grabbing; }

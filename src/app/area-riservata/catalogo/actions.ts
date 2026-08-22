@@ -81,3 +81,21 @@ export async function moveCatalogItem(data: FormData) {
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
 }
+export async function updateCatalogItem(data: FormData) {
+  const supabase = await requireOwner();
+  const table = text(data, "table");
+  const id = text(data, "id");
+  const name = text(data, "name");
+  const slug = text(data, "slug");
+  if (!["categories", "products", "services"].includes(table) || !/^[0-9a-f-]{36}$/.test(id) || !name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) error("Dati catalogo non validi.");
+  const common = { name, slug, description: text(data, "description") };
+  const updateError = table === "categories"
+    ? (await supabase.from("categories").update({ ...common, description: common.description || null, parent_id: text(data, "parentId") || null }).eq("id", id)).error
+    : table === "products"
+      ? (await supabase.from("products").update({ ...common, category_id: text(data, "categoryId") || null, included_accessories: text(data, "includedAccessories"), reference_price_cents: positiveInt(data, "referencePriceCents") }).eq("id", id)).error
+      : (await supabase.from("services").update({ ...common, category_id: text(data, "categoryId") || null, conditions: text(data, "conditions"), reference_price_cents: positiveInt(data, "referencePriceCents") }).eq("id", id)).error;
+  if (updateError) error("Modifiche non salvate: controlla slug e campi inseriti.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
+  error("Modifiche salvate.");
+}

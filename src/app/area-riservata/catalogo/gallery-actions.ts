@@ -58,3 +58,11 @@ export async function moveProductImage(data: FormData) {
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
 }
+export async function reorderProductImages(productId: string, imageIds: string[]) {
+  if (!/^[0-9a-f-]{36}$/.test(productId) || imageIds.length > 50 || imageIds.some(id => !/^[0-9a-f-]{36}$/.test(id))) throw new Error("Sequenza immagini non valida.");
+  const supabase = await requireOwner();
+  const { error } = await supabase.rpc("reorder_product_images", { target_product_id: productId, ordered_image_ids: imageIds });
+  if (error) throw new Error("Ordinamento immagini non aggiornato.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
+}

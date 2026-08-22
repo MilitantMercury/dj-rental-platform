@@ -52,3 +52,32 @@ export async function toggleCatalogItem(data: FormData) {
   if (updateError) error("Stato non aggiornato.");
   revalidatePath("/area-riservata/catalogo");
 }
+export async function toggleCatalogPublication(data: FormData) {
+  const supabase = await requireOwner();
+  const table = text(data, "table");
+  const id = text(data, "id");
+  const published = text(data, "published") === "true";
+  if (table !== "categories" && table !== "products" && table !== "services") error("Elemento catalogo non valido.");
+  const values = { published_at: published ? null : new Date().toISOString(), ...(!published ? { active: true } : {}) };
+  const updateError = table === "categories"
+    ? (await supabase.from("categories").update(values).eq("id", id)).error
+    : table === "products"
+      ? (await supabase.from("products").update(values).eq("id", id)).error
+      : (await supabase.from("services").update(values).eq("id", id)).error;
+  if (updateError) error("Pubblicazione non aggiornata.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
+  error(published ? "Elemento riportato in bozza." : "Elemento pubblicato.");
+}
+
+export async function moveCatalogItem(data: FormData) {
+  const supabase = await requireOwner();
+  const targetType = text(data, "table");
+  const targetId = text(data, "id");
+  const direction = Number(text(data, "direction"));
+  if (!["categories", "products", "services"].includes(targetType) || !/^[0-9a-f-]{36}$/.test(targetId) || ![-1, 1].includes(direction)) error("Ordinamento non valido.");
+  const { error: moveError } = await supabase.rpc("move_catalog_item", { target_type: targetType, target_id: targetId, direction });
+  if (moveError) error("Ordinamento non aggiornato.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
+}

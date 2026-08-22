@@ -142,6 +142,7 @@ export type Database = {
           image_path: string | null
           name: string
           parent_id: string | null
+          published_at: string | null
           slug: string
           sort_order: number
           updated_at: string
@@ -155,6 +156,7 @@ export type Database = {
           image_path?: string | null
           name: string
           parent_id?: string | null
+          published_at?: string | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -168,6 +170,7 @@ export type Database = {
           image_path?: string | null
           name?: string
           parent_id?: string | null
+          published_at?: string | null
           slug?: string
           sort_order?: number
           updated_at?: string
@@ -415,8 +418,10 @@ export type Database = {
           id: string
           included_accessories: string
           name: string
+          published_at: string | null
           reference_price_cents: number | null
           slug: string
+          sort_order: number
           specifications: Json
           updated_at: string
         }
@@ -428,8 +433,10 @@ export type Database = {
           id?: string
           included_accessories?: string
           name: string
+          published_at?: string | null
           reference_price_cents?: number | null
           slug: string
+          sort_order?: number
           specifications?: Json
           updated_at?: string
         }
@@ -441,8 +448,10 @@ export type Database = {
           id?: string
           included_accessories?: string
           name?: string
+          published_at?: string | null
           reference_price_cents?: number | null
           slug?: string
+          sort_order?: number
           specifications?: Json
           updated_at?: string
         }
@@ -937,8 +946,10 @@ export type Database = {
           image_alt: string
           image_path: string | null
           name: string
+          published_at: string | null
           reference_price_cents: number | null
           slug: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
@@ -951,8 +962,10 @@ export type Database = {
           image_alt?: string
           image_path?: string | null
           name: string
+          published_at?: string | null
           reference_price_cents?: number | null
           slug: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
@@ -965,8 +978,10 @@ export type Database = {
           image_alt?: string
           image_path?: string | null
           name?: string
+          published_at?: string | null
           reference_price_cents?: number | null
           slug?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: [
@@ -1019,6 +1034,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      move_catalog_item: {
+        Args: { direction: number; target_id: string; target_type: string }
+        Returns: undefined
+      }
       confirm_request_if_available: {
         Args: {
           p_deposit_internal_notes?: string

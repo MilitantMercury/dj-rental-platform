@@ -19,10 +19,12 @@ export async function setProductCover(data: FormData) {
   const imageId = String(data.get("imageId") ?? "");
   const productId = String(data.get("productId") ?? "");
   const supabase = await requireOwner();
-  const { data: image } = await supabase.from("product_images").select("id").eq("id", imageId).eq("product_id", productId).maybeSingle();
+  const [{ data: image }, { data: firstImage }] = await Promise.all([
+    supabase.from("product_images").select("id").eq("id", imageId).eq("product_id", productId).maybeSingle(),
+    supabase.from("product_images").select("sort_order").eq("product_id", productId).order("sort_order").limit(1).maybeSingle(),
+  ]);
   if (!image) destination("Immagine prodotto non valida.");
-  await supabase.from("product_images").update({ sort_order: 1 }).eq("product_id", productId);
-  const { error } = await supabase.from("product_images").update({ sort_order: 0 }).eq("id", imageId).eq("product_id", productId);
+  const { error } = await supabase.from("product_images").update({ sort_order: (firstImage?.sort_order ?? 0) - 10 }).eq("id", imageId).eq("product_id", productId);
   if (error) destination("Copertina non aggiornata.");
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
@@ -42,4 +44,17 @@ export async function removeProductImage(data: FormData) {
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
   destination("Immagine rimossa.");
+}
+export async function moveProductImage(data: FormData) {
+  const imageId = String(data.get("imageId") ?? "");
+  const productId = String(data.get("productId") ?? "");
+  const direction = Number(data.get("direction"));
+  if (!/^[0-9a-f-]{36}$/.test(imageId) || !/^[0-9a-f-]{36}$/.test(productId) || ![-1, 1].includes(direction)) destination("Ordinamento immagine non valido.");
+  const supabase = await requireOwner();
+  const { data: image } = await supabase.from("product_images").select("id").eq("id", imageId).eq("product_id", productId).maybeSingle();
+  if (!image) destination("Immagine prodotto non valida.");
+  const { error } = await supabase.rpc("move_catalog_item", { target_type: "product_images", target_id: imageId, direction });
+  if (error) destination("Ordinamento immagini non aggiornato.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
 }

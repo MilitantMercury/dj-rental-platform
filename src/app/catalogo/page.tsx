@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function CatalogoPage({ searchParams }: { searchParams: Promise<{ categoria?: string }> }) {
   const supabase = await createClient();
   const [{ data: categories }, { data: products }, { data: services }, { data: productImages }] = await Promise.all([
-    supabase.from("categories").select("id,name,slug,description,image_path,image_alt").eq("active", true).order("sort_order").order("created_at"),
-    supabase.from("products").select("id,name,slug,description,category_id").eq("active", true).order("name"),
-    supabase.from("services").select("id,name,slug,description,category_id,image_path,image_alt").eq("active", true).order("name"),
+    supabase.from("categories").select("id,name,slug,description,image_path,image_alt").eq("active", true).not("published_at", "is", null).order("sort_order").order("created_at"),
+    supabase.from("products").select("id,name,slug,description,category_id").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
+    supabase.from("services").select("id,name,slug,description,category_id,image_path,image_alt").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
     supabase.from("product_images").select("product_id,storage_path,alt_text,sort_order").order("sort_order").order("created_at"),
   ]);
   const { categoria } = await searchParams;

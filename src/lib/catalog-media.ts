@@ -1,4 +1,5 @@
 const MAX_CATALOG_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_CATALOG_IMAGE_EDGE = 1920;
 const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -26,6 +27,18 @@ export async function hasValidCatalogImageSignature(file: File, extension: strin
   return false;
 }
 
+export async function optimizeCatalogImage(file: File) {
+  const sharp = (await import("sharp")).default;
+  const input = Buffer.from(await file.arrayBuffer());
+  const image = sharp(input, { failOn: "error", limitInputPixels: 40_000_000 });
+  const metadata = await image.metadata();
+  if (!metadata.width || !metadata.height) throw new Error("Immagine non decodificabile.");
+  return image
+    .rotate()
+    .resize({ width: MAX_CATALOG_IMAGE_EDGE, height: MAX_CATALOG_IMAGE_EDGE, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 82, effort: 4 })
+    .toBuffer();
+}
 export function catalogImagePath(kind: CatalogMediaKind, entityId: string, extension: string, imageId = crypto.randomUUID()) {
   return `${kind}/${entityId}/${imageId}.${extension}`;
 }

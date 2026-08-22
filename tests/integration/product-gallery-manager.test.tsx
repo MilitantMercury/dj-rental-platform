@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/app/area-riservata/catalogo/gallery-actions", () => ({ removeProductImage: vi.fn(), setProductCover: vi.fn() }));
+vi.mock("@/app/area-riservata/catalogo/gallery-actions", () => ({ moveProductImage: vi.fn(), removeProductImage: vi.fn(), setProductCover: vi.fn() }));
 import { ProductGalleryManager } from "@/components/product-gallery-manager";
 
 describe("gestione galleria prodotto", () => {
@@ -13,5 +13,6 @@ describe("gestione galleria prodotto", () => {
     expect(screen.getByText("Copertina")).toBeVisible();
     expect(screen.getByRole("button", { name: "Usa come copertina" })).toBeVisible();
     expect(screen.getAllByRole("button", { name: "Rimuovi" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /Sposta immagine/ })).toHaveLength(4);
   });
 });

@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(15);
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -13,6 +13,7 @@ select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000001
 select results_eq('select count(*)::bigint from public.categories', array[0::bigint], 'Il cliente non legge il catalogo amministrativo');
 select throws_ok($$insert into public.categories (name, slug) values ('Non autorizzata', 'non-autorizzata')$$, '42501', null, 'Il cliente non scrive il catalogo');
 select throws_ok($$select public.move_catalog_item('categories', '30000000-0000-0000-0000-000000000001', -1)$$, '42501', null, 'Il cliente non riordina il catalogo');
+select throws_ok($$select public.reorder_product_images('30000000-0000-0000-0000-000000000001', array[]::uuid[])$$, '42501', null, 'Il cliente non riordina la galleria');
 select throws_ok($$insert into storage.objects (bucket_id, name) values ('catalog', 'products/20000000-0000-0000-0000-000000000001/30000000-0000-0000-0000-000000000001.webp')$$, '42501', null, 'Il cliente non carica immagini catalogo');
 
 select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000002', true);

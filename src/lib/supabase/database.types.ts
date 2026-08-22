@@ -1038,6 +1038,10 @@ export type Database = {
         Args: { direction: number; target_id: string; target_type: string }
         Returns: undefined
       }
+      reorder_product_images: {
+        Args: { ordered_image_ids: string[]; target_product_id: string }
+        Returns: undefined
+      }
       confirm_request_if_available: {
         Args: {
           p_deposit_internal_notes?: string

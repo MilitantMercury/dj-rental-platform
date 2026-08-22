@@ -25,3 +25,9 @@ Gli upload vengono decodificati lato server, orientati secondo i metadati, ridim
 Categorie, prodotti e servizi nascono in bozza (`published_at` nullo). La pubblicazione valorizza `published_at` e rende l’elemento leggibile dalle policy pubbliche; la disattivazione resta una scelta separata e preserva lo storico. Owner e trigger database registrano pubblicazione, ritiro in bozza, stato e riordino in `audit_logs`.
 
 L’ordine di categorie, prodotti, servizi e immagini prodotto viene modificato tramite una funzione database atomica, riservata all’owner. I pulsanti Su/Giù sono utilizzabili da tastiera; la prima e l’ultima posizione vengono disabilitate quando non applicabili.
+
+## Editor e anteprima
+
+L’owner può modificare nome, slug, categoria, descrizione, prezzo indicativo e i campi specifici di prodotti e servizi senza ricreare l’elemento. L’anteprima privata sotto `/area-riservata/catalogo/anteprima/...` verifica nuovamente ruolo e sessione lato server e permette di controllare anche le bozze senza renderle pubbliche.
+
+La galleria prodotto supporta trascinamento per mouse e puntatore; al rilascio invia l’intera sequenza a `reorder_product_images`, che verifica appartenenza, duplicati e completezza prima di aggiornarla atomicamente. I pulsanti Su/Giù restano disponibili come fallback da tastiera.

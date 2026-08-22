@@ -16,6 +16,16 @@ export function validateCatalogImage(value: FormDataEntryValue | null) {
   return { file: value, extension, error: null } as const;
 }
 
+export async function hasValidCatalogImageSignature(file: File, extension: string) {
+  const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+  if (extension === "jpg") return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (extension === "png") return [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((value, index) => bytes[index] === value);
+  const ascii = (start: number, length: number) => String.fromCharCode(...bytes.slice(start, start + length));
+  if (extension === "webp") return ascii(0, 4) === "RIFF" && ascii(8, 4) === "WEBP";
+  if (extension === "avif") return ascii(4, 4) === "ftyp" && ["avif", "avis"].includes(ascii(8, 4));
+  return false;
+}
+
 export function catalogImagePath(kind: CatalogMediaKind, entityId: string, extension: string, imageId = crypto.randomUUID()) {
   return `${kind}/${entityId}/${imageId}.${extension}`;
 }

@@ -39,6 +39,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: { action: string; actor_id: string | null; after_data: Json | null; before_data: Json | null; created_at: string; entity_id: string; entity_type: string; id: string }
+        Insert: { action: string; actor_id?: string | null; after_data?: Json | null; before_data?: Json | null; created_at?: string; entity_id: string; entity_type: string; id?: string }
+        Update: { action?: string; actor_id?: string | null; after_data?: Json | null; before_data?: Json | null; created_at?: string; entity_id?: string; entity_type?: string; id?: string }
+        Relationships: [{ foreignKeyName: "audit_logs_actor_id_fkey"; columns: ["actor_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["user_id"] }]
+      }
       app_settings: {
         Row: { created_at: string; id: boolean; operational_margin_days: number; option_duration_hours: number; timezone: string; updated_at: string }
         Insert: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string }

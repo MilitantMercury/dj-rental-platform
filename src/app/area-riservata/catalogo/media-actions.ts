@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { catalogImagePath, validateCatalogImage, type CatalogMediaKind } from "@/lib/catalog-media";
+import { catalogImagePath, hasValidCatalogImageSignature, validateCatalogImage, type CatalogMediaKind } from "@/lib/catalog-media";
 import { createClient } from "@/lib/supabase/server";
 
 const fail = (message: string): never => redirect(`/area-riservata/catalogo?message=${encodeURIComponent(message)}`);
@@ -25,7 +25,13 @@ export async function uploadCatalogImage(data: FormData) {
   if (image.error || !image.file || !image.extension) fail(image.error ?? "Seleziona un’immagine.");
   const file = image.file as File;
   const extension = image.extension as string;
+  if (!(await hasValidCatalogImageSignature(file, extension))) fail("Contenuto immagine non valido.");
   const supabase = await requireOwner();
+  const previousPath = kind === "categories"
+    ? (await supabase.from("categories").select("image_path").eq("id", entityId).maybeSingle()).data?.image_path
+    : kind === "services"
+      ? (await supabase.from("services").select("image_path").eq("id", entityId).maybeSingle()).data?.image_path
+      : null;
   const path = catalogImagePath(kind, entityId, extension);
   const { error: uploadError } = await supabase.storage.from("catalog").upload(path, file, { contentType: file.type, upsert: false });
   if (uploadError) fail("Caricamento non riuscito. Usa JPEG, PNG, WebP o AVIF entro 5 MB.");
@@ -39,6 +45,7 @@ export async function uploadCatalogImage(data: FormData) {
     await supabase.storage.from("catalog").remove([path]);
     fail("Immagine caricata ma non associata all’elemento.");
   }
+  if (previousPath && previousPath !== path) await supabase.storage.from("catalog").remove([previousPath]);
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
   redirect("/area-riservata/catalogo?message=Immagine%20caricata.");

@@ -132,6 +132,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_alt: string
           image_path: string | null
           name: string
           parent_id: string | null
@@ -144,6 +145,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_alt?: string
           image_path?: string | null
           name: string
           parent_id?: string | null
@@ -156,6 +158,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_alt?: string
           image_path?: string | null
           name?: string
           parent_id?: string | null
@@ -925,6 +928,8 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          image_alt: string
+          image_path: string | null
           name: string
           reference_price_cents: number | null
           slug: string
@@ -937,6 +942,8 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          image_alt?: string
+          image_path?: string | null
           name: string
           reference_price_cents?: number | null
           slug: string
@@ -949,6 +956,8 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          image_alt?: string
+          image_path?: string | null
           name?: string
           reference_price_cents?: number | null
           slug?: string

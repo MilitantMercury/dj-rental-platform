@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase.from("services").select("name,description,conditions,image_path,image_alt").eq("slug", slug).eq("active", true).maybeSingle();
+  const { data } = await supabase.from("services").select("name,description,conditions,image_path,image_alt").eq("slug", slug).eq("active", true).not("published_at", "is", null).maybeSingle();
   if (!data) notFound();
   return <main className="catalog-page shell"><Link className="catalog-back" href="/catalogo">← Catalogo</Link><article className="catalog-detail">{data.image_path && <div className="catalog-detail-media"><Image src={catalogMediaUrl(data.image_path) ?? ""} alt={data.image_alt || data.name} fill sizes="(max-width: 720px) 100vw, 720px" /></div>}<p className="eyebrow dark">Servizio</p><h1>{data.name}</h1><p>{data.description || "Supporto professionale definito insieme al gestore."}</p>{data.conditions && <><h2>Condizioni</h2><p>{data.conditions}</p></>}<Link className="cta" href="/richiesta">Richiedi una proposta</Link></article></main>;
 }

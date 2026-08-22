@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { catalogImagePath, catalogMediaUrl, hasValidCatalogImageSignature, validateCatalogImage } from "@/lib/catalog-media";
+import { catalogImagePath, catalogMediaUrl, hasValidCatalogImageSignature, optimizeCatalogImage, validateCatalogImage } from "@/lib/catalog-media";
 
 describe("media catalogo", () => {
   it("accetta i formati immagine previsti e costruisce percorsi confinati", () => {
@@ -15,6 +15,15 @@ describe("media catalogo", () => {
     const fake = new File(["not an image"], "fake.png", { type: "image/png" });
     expect(await hasValidCatalogImageSignature(png, "png")).toBe(true);
     expect(await hasValidCatalogImageSignature(fake, "png")).toBe(false);
+  });
+  it("normalizza le immagini in WebP entro 1920 pixel", async () => {
+    const sharp = (await import("sharp")).default;
+    const source = await sharp({ create: { width: 2400, height: 1200, channels: 3, background: "#ff9900" } }).png().toBuffer();
+    const optimized = await optimizeCatalogImage(new File([source], "hero.png", { type: "image/png" }));
+    const metadata = await sharp(optimized).metadata();
+    expect(metadata.format).toBe("webp");
+    expect(metadata.width).toBe(1920);
+    expect(metadata.height).toBe(960);
   });
   it("rifiuta file non immagine e file oltre 5 MB", () => {
     expect(validateCatalogImage(new File(["text"], "note.txt", { type: "text/plain" })).error).toMatch(/Formato/);

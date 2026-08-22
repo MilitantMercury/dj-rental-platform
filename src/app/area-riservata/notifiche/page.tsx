@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { BackLink } from "@/components/back-link";
 import { createClient } from "@/lib/supabase/server";
 import { formatNotificationDate, type AppNotification } from "@/lib/notifications";
-import { markAllNotificationsRead, markNotificationRead } from "./actions";
+import { NotificationReadToggle } from "@/components/notification-read-toggle";
+import { markAllNotificationsRead, markNotificationRead, markNotificationUnread } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function NotificationsPage() {
         <div><p className="notification-meta">{formatNotificationDate(notification.created_at)}</p><h2>{notification.title}</h2><p>{notification.body}</p></div>
         <div className="notification-actions">
           <Link href={notification.href}>Apri</Link>
-          {!notification.read_at && <form action={markNotificationRead}><input type="hidden" name="notificationId" value={notification.id} /><button type="submit">Segna come letta</button></form>}
+          <NotificationReadToggle notificationId={notification.id} isRead={Boolean(notification.read_at)} markReadAction={markNotificationRead} markUnreadAction={markNotificationUnread} />
         </div>
       </li>)}</ol>}
   </main>;

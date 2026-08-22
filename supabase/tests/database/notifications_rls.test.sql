@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(11);
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -19,6 +19,8 @@ select results_eq($$select count(*)::bigint from public.notifications$$, array[1
 select results_eq($$select count(*)::bigint from public.notifications where event_key = 'test:two'$$, array[0::bigint], 'Le notifiche altrui non sono leggibili');
 select lives_ok($$update public.notifications set read_at = now() where event_key = 'test:one'$$, 'Il destinatario può segnare come letta la propria notifica');
 select results_eq($$select count(*)::bigint from public.notifications where event_key = 'test:one' and read_at is not null$$, array[1::bigint], 'La lettura viene registrata');
+select lives_ok($$update public.notifications set read_at = null where event_key = 'test:one'$$, 'Il destinatario può segnare come non letta la propria notifica');
+select results_eq($$select count(*)::bigint from public.notifications where event_key = 'test:one' and read_at is null$$, array[1::bigint], 'Lo stato non letto viene ripristinato');
 select throws_ok($$update public.notifications set title = 'Alterata' where event_key = 'test:one'$$, '42501', null, 'Il destinatario non può alterare il contenuto');
 select results_eq($$update public.notifications set read_at = now() where event_key = 'test:two' returning 1$$, array[]::integer[], 'Il destinatario non può aggiornare notifiche altrui');
 select throws_ok($$insert into public.notifications (recipient_user_id, kind, title, body, href, event_key) values ('40000000-0000-0000-0000-000000000001', 'request_created', 'Falsa', 'Notifica non autorizzata.', '/area-riservata', 'fake')$$, '42501', null, 'Gli utenti non possono creare notifiche');

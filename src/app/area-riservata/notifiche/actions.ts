@@ -20,6 +20,14 @@ export async function markNotificationRead(data: FormData) {
   revalidatePath("/area-riservata/notifiche");
 }
 
+export async function markNotificationUnread(data: FormData) {
+  const notificationId = String(data.get("notificationId") ?? "");
+  if (!notificationId) return;
+  const supabase = await requireUser();
+  await supabase.from("notifications").update({ read_at: null }).eq("id", notificationId).not("read_at", "is", null);
+  revalidatePath("/", "layout");
+  revalidatePath("/area-riservata/notifiche");
+}
 export async function markAllNotificationsRead() {
   const supabase = await requireUser();
   await supabase.from("notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);

@@ -1,7 +1,55 @@
 "use server";
+
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { hasValidStructuredAddress } from "@/lib/domain/customer-registration";
 import { romeDateTimeLocalToIso } from "@/lib/event-time";
-const read=(d:FormData,k:string)=>{const v=d.get(k);return typeof v==="string"?v.trim():""}; const fail=(m:string):never=>redirect(`/richiesta?message=${encodeURIComponent(m)}`);
-export async function createRequest(data:FormData){const selected=read(data,"eventType"),eventType=selected==="Altro"?read(data,"otherEventType"):selected,startLocal=read(data,"eventStartAt"),endLocal=read(data,"eventEndAt"),eventStartAt=romeDateTimeLocalToIso(startLocal),eventEndAt=romeDateTimeLocalToIso(endLocal),eventDate=startLocal.slice(0,10),eventEndDate=endLocal.slice(0,10),venueName=read(data,"venueName"),venueStreet=read(data,"venueStreet"),venueNumber=read(data,"venueNumber"),venuePostalCode=read(data,"venuePostalCode"),venueCity=read(data,"venueCity"),venueProvince=read(data,"venueProvince").toUpperCase(),venueCountry="Italia",venueAddress=[venueStreet,venueNumber,venuePostalCode,venueCity,venueProvince,venueCountry].filter(Boolean).join(", "),delivery=read(data,"deliveryResponsibility"),pickup=read(data,"pickupResponsibility"),notes=read(data,"notes"); if(!eventType||!eventStartAt||!eventEndAt||!venueName||!hasValidStructuredAddress({street:venueStreet,number:venueNumber,postalCode:venuePostalCode,city:venueCity,province:venueProvince,country:venueCountry})||!["owner","customer"].includes(delivery)||!["owner","customer"].includes(pickup)||data.get("privacy")!=="on")fail("Completa i dati obbligatori e accetta l’informativa privacy."); if(eventEndAt<=eventStartAt)fail("La data e ora di fine deve seguire l’inizio."); const supabase=await createClient(); const {data:auth}=await supabase.auth.getUser(); const user=auth.user; if(!user||!user.email_confirmed_at)return fail("Devi accedere con un indirizzo email verificato."); const {data:request,error}=await supabase.from("requests").insert({customer_email:user.email??"",request_code:`R-${crypto.randomUUID().slice(0,8).toUpperCase()}`,customer_user_id:user.id,event_type:eventType,event_date:eventDate,event_end_date:eventEndDate,event_start_at:eventStartAt,event_end_at:eventEndAt,venue_name:venueName,venue_address:venueAddress,venue_street:venueStreet,venue_number:venueNumber,venue_postal_code:venuePostalCode,venue_city:venueCity,venue_province:venueProvince,venue_country:venueCountry,logistics_mode:"delivery",delivery_responsibility:delivery as "owner"|"customer",pickup_responsibility:pickup as "owner"|"customer",customer_notes:notes,privacy_accepted_at:new Date().toISOString(),status:"received"} as never).select("id").single(); if(error||!request)fail("Non è stato possibile inviare la richiesta. Riprova."); const {data:cart}=await supabase.from("carts").select("id").eq("customer_user_id",user.id).maybeSingle(); if(cart){const {data:items}=await supabase.from("cart_items").select("item_type,product_id,service_id,quantity").eq("cart_id",cart.id); for(const item of items??[]){const itemId=item.item_type==="product"?item.product_id:item.service_id; if(!itemId)continue; const table=item.item_type==="product"?"products":"services"; const {data:catalog}=await supabase.from(table).select("name").eq("id",itemId).maybeSingle(); await supabase.from("request_items").insert({request_id:request!.id,item_type:item.item_type,item_id:itemId,description:catalog?.name??"Articolo",quantity:item.quantity} as never);} await supabase.from("cart_items").delete().eq("cart_id",cart.id);} redirect("/richiesta/inviata");}
+import { requestSubmissionErrorMessage, validateRequestSubmission } from "@/lib/request-submission";
+import { createClient } from "@/lib/supabase/server";
+
+const read = (data: FormData, key: string) => {
+  const value = data.get(key);
+  return typeof value === "string" ? value.trim() : "";
+};
+const fail = (message: string): never => redirect(`/richiesta?message=${encodeURIComponent(message)}`);
+
+export async function createRequest(data: FormData) {
+  const selectedEventType = read(data, "eventType");
+  const eventType = selectedEventType === "Altro" ? read(data, "otherEventType") : selectedEventType;
+  const eventStartAt = romeDateTimeLocalToIso(read(data, "eventStartAt"));
+  const eventEndAt = romeDateTimeLocalToIso(read(data, "eventEndAt"));
+  const venueName = read(data, "venueName");
+  const venueStreet = read(data, "venueStreet");
+  const venueNumber = read(data, "venueNumber");
+  const venuePostalCode = read(data, "venuePostalCode");
+  const venueCity = read(data, "venueCity");
+  const venueProvince = read(data, "venueProvince").toUpperCase();
+  const venueCountry = "Italia";
+  const deliveryResponsibility = read(data, "deliveryResponsibility");
+  const pickupResponsibility = read(data, "pickupResponsibility");
+  const notes = read(data, "notes");
+  const privacyAccepted = data.get("privacy") === "on";
+  const validation = validateRequestSubmission({ eventType, eventStartAt, eventEndAt, venueName, venueStreet, venueNumber, venuePostalCode, venueCity, venueProvince, deliveryResponsibility, pickupResponsibility, notes, privacyAccepted });
+  if (validation || !hasValidStructuredAddress({ street: venueStreet, number: venueNumber, postalCode: venuePostalCode, city: venueCity, province: venueProvince, country: venueCountry })) fail(validation ?? "Completa correttamente l’indirizzo della location.");
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !user.email_confirmed_at) fail("Devi accedere con un indirizzo email verificato.");
+  const { error } = await supabase.rpc("submit_quote_request", {
+    p_event_type: eventType,
+    p_event_start_at: eventStartAt!,
+    p_event_end_at: eventEndAt!,
+    p_venue_name: venueName,
+    p_venue_street: venueStreet,
+    p_venue_number: venueNumber,
+    p_venue_postal_code: venuePostalCode,
+    p_venue_city: venueCity,
+    p_venue_province: venueProvince,
+    p_venue_country: venueCountry,
+    p_delivery_responsibility: deliveryResponsibility,
+    p_pickup_responsibility: pickupResponsibility,
+    p_customer_notes: notes,
+    p_privacy_accepted: privacyAccepted,
+  });
+  if (error) fail(requestSubmissionErrorMessage(error.message));
+  redirect("/richiesta/inviata");
+}

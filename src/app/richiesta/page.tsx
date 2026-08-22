@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { DateTimeInput } from "@/components/date-time-input";
 import { redirect } from "next/navigation";
+import { DateTimeInput } from "@/components/date-time-input";
 import { EventTypeField } from "@/components/event-type-field";
+import { RequestSelection } from "@/components/request-selection";
 import { ITALIAN_PROVINCES } from "@/lib/domain/italian-provinces";
 import { createClient } from "@/lib/supabase/server";
 import { createRequest } from "./actions";
@@ -12,12 +13,28 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/registrazione?next=%2Frichiesta");
-  const { data: eventTypes } = await supabase.from("event_types").select("name").eq("active", true).order("sort_order");
+  const [{ data: eventTypes }, { data: cart }] = await Promise.all([
+    supabase.from("event_types").select("name").eq("active", true).order("sort_order"),
+    supabase.from("carts").select("id").eq("customer_user_id", user.id).maybeSingle(),
+  ]);
+  if (!cart) redirect("/carrello");
+  const { data: cartRows } = await supabase.from("cart_items").select("item_type,product_id,service_id,quantity").eq("cart_id", cart.id);
+  if (!cartRows?.length) redirect("/carrello");
+  const productIds = cartRows.map((item) => item.product_id).filter((id): id is string => Boolean(id));
+  const serviceIds = cartRows.map((item) => item.service_id).filter((id): id is string => Boolean(id));
+  const [{ data: products }, { data: services }] = await Promise.all([
+    productIds.length ? supabase.from("products").select("id,name").in("id", productIds) : Promise.resolve({ data: [] }),
+    serviceIds.length ? supabase.from("services").select("id,name").in("id", serviceIds) : Promise.resolve({ data: [] }),
+  ]);
+  const itemNames = new Map([...(products ?? []), ...(services ?? [])].map((item) => [item.id, item.name]));
+  const selection = cartRows.map((item) => ({ id: item.product_id ?? item.service_id ?? "", name: itemNames.get(item.product_id ?? item.service_id ?? "") ?? "Elemento del catalogo", type: item.item_type as "product" | "service", quantity: item.quantity }));
   const { message } = await searchParams;
   return <main className="auth-shell"><section className="auth-card request-card">
     <Link href="/catalogo">← Torna al catalogo</Link><h1>Raccontaci il tuo evento.</h1><p>Il gestore verificherà i dettagli e preparerà una proposta.</p>
     {message === "request-sent" && <div className="auth-message request-success" role="status">Richiesta inviata con successo.</div>}
+    {message && message !== "request-sent" && <div className="auth-message" role="alert">{message}</div>}
     <form className="auth-form request-form" action={createRequest}>
+      <RequestSelection items={selection} />
       <section className="request-section"><h2 className="request-section-title">Evento e date</h2><div className="request-event-grid">
         <EventTypeField types={(eventTypes ?? []).map((item) => item.name)} />
         <label>Data e ora inizio<DateTimeInput name="eventStartAt" required /></label>

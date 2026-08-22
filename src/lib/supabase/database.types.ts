@@ -715,6 +715,7 @@ export type Database = {
       }
       request_items: {
         Row: {
+          catalog_snapshot: Json
           created_at: string
           description: string
           id: string
@@ -724,6 +725,7 @@ export type Database = {
           request_id: string
         }
         Insert: {
+          catalog_snapshot?: Json
           created_at?: string
           description: string
           id?: string
@@ -733,6 +735,7 @@ export type Database = {
           request_id: string
         }
         Update: {
+          catalog_snapshot?: Json
           created_at?: string
           description?: string
           id?: string
@@ -1034,6 +1037,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      submit_quote_request: {
+        Args: {
+          p_customer_notes: string
+          p_delivery_responsibility: string
+          p_event_end_at: string
+          p_event_start_at: string
+          p_event_type: string
+          p_pickup_responsibility: string
+          p_privacy_accepted: boolean
+          p_venue_city: string
+          p_venue_country: string
+          p_venue_name: string
+          p_venue_number: string
+          p_venue_postal_code: string
+          p_venue_province: string
+          p_venue_street: string
+        }
+        Returns: string
+      }
       move_catalog_item: {
         Args: { direction: number; target_id: string; target_type: string }
         Returns: undefined

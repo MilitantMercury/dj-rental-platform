@@ -10,6 +10,7 @@ import {
 } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
 import { PracticesToolbar } from "@/components/practices-toolbar";
+import { AppMessage } from "@/components/app-message";
 import { expireDueOptions } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -96,7 +97,7 @@ export default async function PracticesPage({
           <strong>{allRequests.length}</strong> richieste totali
         </div>
       </div>
-      {message && <div className="auth-message catalog-message" role="status">{message.startsWith("opzioni-aggiornate-") ? `${message.replace("opzioni-aggiornate-", "")} opzioni scadute aggiornate.` : message.replaceAll("-", " ")}</div>}
+      {message && <AppMessage message={message.startsWith("opzioni-aggiornate-") ? `${message.replace("opzioni-aggiornate-", "")} opzioni scadute aggiornate.` : message} />}
       <PracticesToolbar
         activeCount={activeRequests.length}
         archivedCount={archivedRequests.length}

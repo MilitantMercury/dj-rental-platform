@@ -1,10 +1,11 @@
 import type { FormEventHandler, ReactNode } from "react";
 import Link from "next/link";
+import { AppMessage } from "@/components/app-message";
 
 export function AuthForm({ title, intro, action, children, message }: { title: string; intro: string; action: (data: FormData) => void | Promise<void>; children: ReactNode; message?: string }) {
   return <main className="auth-shell"><section className="auth-card">
     <Link className="brand" href="/"><span className="brand-mark">ND</span><span>Noleggio DJ</span></Link>
-    <h1>{title}</h1><p>{intro}</p>{message ? <div className="auth-message" role="status">{message}</div> : null}
+    <h1>{title}</h1><p>{intro}</p>{message ? <AppMessage message={message} /> : null}
     <form action={action} className="auth-form">{children}</form>
   </section></main>;
 }

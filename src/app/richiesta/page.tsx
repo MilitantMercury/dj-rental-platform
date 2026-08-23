@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { DateTimeInput } from "@/components/date-time-input";
 import { EventTypeField } from "@/components/event-type-field";
 import { RequestSelection } from "@/components/request-selection";
+import { AppMessage } from "@/components/app-message";
 import { ITALIAN_PROVINCES } from "@/lib/domain/italian-provinces";
 import { createClient } from "@/lib/supabase/server";
 import { createRequest } from "./actions";
@@ -31,8 +32,8 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
   const { message } = await searchParams;
   return <main className="auth-shell"><section className="auth-card request-card">
     <Link href="/catalogo">← Torna al catalogo</Link><h1>Raccontaci il tuo evento.</h1><p>Il gestore verificherà i dettagli e preparerà una proposta.</p>
-    {message === "request-sent" && <div className="auth-message request-success" role="status">Richiesta inviata con successo.</div>}
-    {message && message !== "request-sent" && <div className="auth-message" role="alert">{message}</div>}
+    {message === "request-sent" && <AppMessage message="Richiesta inviata con successo." />}
+    {message && message !== "request-sent" && <AppMessage message={message} tone="error" />}
     <form className="auth-form request-form" action={createRequest}>
       <RequestSelection items={selection} />
       <section className="request-section"><h2 className="request-section-title">Evento e date</h2><div className="request-event-grid">

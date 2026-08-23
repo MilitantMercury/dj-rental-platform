@@ -6,6 +6,7 @@ import { ownerStatusTransitions } from "@/lib/request-lifecycle";
 import { ConfirmPracticeForm } from "@/components/confirm-practice-form";
 import { FinancialRecordsSection } from "@/components/financial-records-section";
 import { FinancialSummarySection } from "@/components/financial-summary-section";
+import { AppMessage } from "@/components/app-message";
 import { calculateFinancialSummary } from "@/lib/financial-summary";
 import { createClient } from "@/lib/supabase/server";
 import { addExternalSupply, assignCollaborator, closeRequest, confirmRequest, createQuoteFromRequest, markRequestAwaitingDeposit, placeOnOption, registerDelivery, registerReturn, startPreparation, updateRequestStatus } from "../actions";
@@ -224,11 +225,7 @@ export default async function PracticeDetail({
         </div>
       </div>
 
-      {feedback && (
-        <div className="auth-message" role="status">
-          {feedback}
-        </div>
-      )}
+      {feedback && <AppMessage message={feedback} />}
 
       <div className="practice-workspace">
       <div className="practice-workspace-main">

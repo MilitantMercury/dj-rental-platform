@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { formatEventDateTime } from "@/lib/date-time";
 import { createClient } from "@/lib/supabase/server";
+import { AppMessage } from "@/components/app-message";
 import { transportContainerLabel } from "@/lib/transport-containers";
 import { addTransportContainer, updatePreparationItem } from "./actions";
 import { addOperationalAttachment } from "./attachments";
@@ -33,7 +34,7 @@ export default async function OperationalChecklist({ params, searchParams }: { p
   return <main className="dashboard shell operational-page">
     <Link href={`/area-riservata/pratiche/${id}`}>← Torna alla pratica</Link>
     <header className="operational-header"><div><p className="eyebrow dark">Checklist operativa</p><h1>{request.event_type}</h1><p>{request.request_code} · {formatEventDateTime(request.event_start_at)} → {formatEventDateTime(request.event_end_at)} · {request.venue_name}</p></div><strong>{preparedCount}/{listItems.length} pronti</strong></header>
-    {message && <div className="auth-message" role="status">{message === "checklist-aggiornata" ? "Checklist aggiornata." : message.replaceAll("-", " ")}</div>}
+    {message && <AppMessage message={message} />}
     <section className="operational-intro"><div><p className="detail-label">Preparazione</p><h2>Materiale della pratica</h2><p>Compila solo le quantità effettivamente preparate, consegnate e rientrate. Prezzi e movimenti economici non sono disponibili qui.</p></div><span>{staff.role === "owner" ? "Owner" : "Collaboratore"}</span></section>
     <div className="operational-list">
       {listItems.map((item) => <article key={item.id} className={`operational-item is-${item.status}`}><form action={updatePreparationItem}><input type="hidden" name="requestId" value={id}/><input type="hidden" name="itemId" value={item.id}/><input type="hidden" name="expectedQuantity" value={item.expected_quantity}/><header><div><h2>{item.description}</h2><p>Previsti <strong>{item.expected_quantity}</strong></p></div><span>{item.status === "prepared" ? "Pronto" : item.status === "delivered" ? "Consegnato" : item.status === "returned" ? "Rientrato" : "Da preparare"}</span></header><div className="operational-quantities"><label>Preparati<input name="preparedQuantity" type="number" min="0" max={item.expected_quantity} defaultValue={item.prepared_quantity}/></label><label>Consegnati<input name="deliveredQuantity" type="number" min="0" max={item.expected_quantity} defaultValue={item.delivered_quantity}/></label><label>Rientrati<input name="returnedQuantity" type="number" min="0" max={item.expected_quantity} defaultValue={item.returned_quantity}/></label></div><label className="operational-notes">Note operative<textarea name="notes" rows={2} maxLength={2000} defaultValue={item.notes}/></label><button type="submit">Salva aggiornamento</button></form></article>)}

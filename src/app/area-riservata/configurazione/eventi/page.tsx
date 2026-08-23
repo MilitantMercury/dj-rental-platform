@@ -1,3 +1,16 @@
-import { redirect } from "next/navigation"; import Link from "next/link"; import { createClient } from "@/lib/supabase/server"; import { createEventType,toggleEventType } from "./actions";
-export const dynamic="force-dynamic";
-export default async function EventTypesPage(){const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/accesso");const{data:staff}=await s.from("staff_profiles").select("role").eq("user_id",user.id).maybeSingle();if(staff?.role!=="owner")redirect("/area-riservata");const{data:types}=await s.from("event_types").select("id,name,description,sort_order,active").order("sort_order").order("name");return <main className="dashboard shell"><Link href="/area-riservata">← Area riservata</Link><p className="eyebrow dark">Configurazione</p><h1>Tipi di evento.</h1><div className="dashboard-card"><h2>Aggiungi tipologia</h2><form className="catalog-form" action={createEventType}><label>Nome<input name="name" required maxLength={100}/></label><label>Descrizione<textarea name="description" rows={2}/></label><label>Ordine<input name="sortOrder" type="number" defaultValue="0"/></label><button type="submit">Aggiungi</button></form></div><ul className="catalog-list">{(types??[]).map(type=><li key={type.id}><span><strong>{type.name}</strong><small>{type.description||"Nessuna descrizione"}</small></span><form action={toggleEventType}><input type="hidden" name="id" value={type.id}/><input type="hidden" name="active" value={String(type.active)}/><button className="status-button" type="submit">{type.active?"Attivo":"Disattivo"}</button></form></li>)}</ul></main>}
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { createEventType, toggleEventType } from "./actions";
+
+export const dynamic = "force-dynamic";
+
+export default async function EventTypesPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/accesso");
+  const { data: staff } = await supabase.from("staff_profiles").select("role").eq("user_id", user.id).maybeSingle();
+  if (staff?.role !== "owner") redirect("/area-riservata");
+  const { data: types } = await supabase.from("event_types").select("id,name,description,sort_order,active").order("sort_order").order("name");
+  return <main className="dashboard shell"><Link href="/area-riservata/impostazioni">← Impostazioni</Link><p className="eyebrow dark">Impostazioni</p><h1>Tipi di evento.</h1><div className="dashboard-card"><h2>Aggiungi tipologia</h2><form className="catalog-form" action={createEventType}><label>Nome<input name="name" required maxLength={100} /></label><label>Descrizione<textarea name="description" rows={2} /></label><label>Ordine<input name="sortOrder" type="number" defaultValue="0" /></label><button type="submit">Aggiungi</button></form></div><ul className="catalog-list">{(types ?? []).map(type => <li key={type.id}><span><strong>{type.name}</strong><small>{type.description || "Nessuna descrizione"}</small></span><form action={toggleEventType}><input type="hidden" name="id" value={type.id} /><input type="hidden" name="active" value={String(type.active)} /><button className="status-button" type="submit">{type.active ? "Attivo" : "Disattivo"}</button></form></li>)}</ul></main>;
+}

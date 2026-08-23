@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
+  const { data: publicSettings } = await supabase.rpc("get_public_app_settings");
   const { data: { user } } = await supabase.auth.getUser();
   const [staffResult, profileResult, customerResult, notificationResult] = user
     ? await Promise.all([
@@ -30,7 +31,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : user ? "Cliente" : undefined;
   return (
     <html lang="it" data-scroll-behavior="smooth" className="h-full antialiased">
-      <body className="flex min-h-full flex-col"><SiteHeader userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} unreadNotifications={notificationResult.count ?? 0} />{children}</body>
+      <body className="flex min-h-full flex-col"><SiteHeader brandName={publicSettings?.[0]?.public_name} userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} unreadNotifications={notificationResult.count ?? 0} />{children}</body>
     </html>
   );
 }

@@ -46,9 +46,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "audit_logs_actor_id_fkey"; columns: ["actor_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["user_id"] }]
       }
       app_settings: {
-        Row: { created_at: string; id: boolean; operational_margin_days: number; option_duration_hours: number; timezone: string; updated_at: string }
-        Insert: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string }
-        Update: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string }
+        Row: { created_at: string; id: boolean; operational_margin_days: number; option_duration_hours: number; timezone: string; updated_at: string; sender_name: string; sender_email: string; owner_notification_email: string; notify_new_requests: boolean; notify_quote_responses: boolean; notify_operational_updates: boolean; pickup_enabled: boolean; delivery_enabled: boolean; pickup_address: string; pickup_instructions: string; public_name: string; public_email: string; public_phone: string; whatsapp_url: string; instagram_url: string; facebook_url: string; site_intro: string }
+        Insert: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string; sender_name?: string; sender_email?: string; owner_notification_email?: string; notify_new_requests?: boolean; notify_quote_responses?: boolean; notify_operational_updates?: boolean; pickup_enabled?: boolean; delivery_enabled?: boolean; pickup_address?: string; pickup_instructions?: string; public_name?: string; public_email?: string; public_phone?: string; whatsapp_url?: string; instagram_url?: string; facebook_url?: string; site_intro?: string }
+        Update: { created_at?: string; id?: boolean; operational_margin_days?: number; option_duration_hours?: number; timezone?: string; updated_at?: string; sender_name?: string; sender_email?: string; owner_notification_email?: string; notify_new_requests?: boolean; notify_quote_responses?: boolean; notify_operational_updates?: boolean; pickup_enabled?: boolean; delivery_enabled?: boolean; pickup_address?: string; pickup_instructions?: string; public_name?: string; public_email?: string; public_phone?: string; whatsapp_url?: string; instagram_url?: string; facebook_url?: string; site_intro?: string }
         Relationships: []
       }
       cart_items: {
@@ -1037,6 +1037,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_app_settings: {
+        Args: Record<PropertyKey, never>
+        Returns: { public_name: string; public_email: string; public_phone: string; site_intro: string; pickup_enabled: boolean; delivery_enabled: boolean; pickup_address: string; pickup_instructions: string }[]
+      }
       submit_quote_request: {
         Args: {
           p_customer_notes: string

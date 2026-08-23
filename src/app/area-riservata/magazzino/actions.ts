@@ -14,7 +14,6 @@ async function requireOwner() {
   if (staff?.role !== "owner") redirect("/area-riservata");
   return supabase;
 }
-
 export async function saveStock(data: FormData) {
   const productId = String(data.get("productId") ?? "");
   const quantity = Number(data.get("quantity"));
@@ -39,15 +38,4 @@ export async function addUnavailability(data: FormData) {
   if (error) redirect(`${path}?message=indisponibilita-non-salvata`);
   revalidatePath(path);
   redirect(`${path}?message=indisponibilita-salvata`);
-}
-
-export async function saveAvailabilitySettings(data: FormData) {
-  const optionHours = Number(data.get("optionHours"));
-  const marginDays = Number(data.get("marginDays"));
-  if (!Number.isInteger(optionHours) || optionHours < 1 || optionHours > 720 || !Number.isInteger(marginDays) || marginDays < 0 || marginDays > 30) redirect(`${path}?message=configurazione-non-valida`);
-  const supabase = await requireOwner();
-  const { error } = await supabase.from("app_settings").upsert({ id: true, option_duration_hours: optionHours, operational_margin_days: marginDays, timezone: "Europe/Rome" });
-  if (error) redirect(`${path}?message=configurazione-non-salvata`);
-  revalidatePath(path);
-  redirect(`${path}?message=configurazione-salvata`);
 }

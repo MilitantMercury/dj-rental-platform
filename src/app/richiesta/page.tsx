@@ -14,9 +14,9 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/registrazione?next=%2Frichiesta");
-  const [{ data: eventTypes }, { data: cart }] = await Promise.all([
+  const [{ data: eventTypes }, { data: cart }, { data: publicSettings }] = await Promise.all([
     supabase.from("event_types").select("name").eq("active", true).order("sort_order"),
-    supabase.from("carts").select("id").eq("customer_user_id", user.id).maybeSingle(),
+    supabase.from("carts").select("id").eq("customer_user_id", user.id).maybeSingle(), supabase.rpc("get_public_app_settings"),
   ]);
   if (!cart) redirect("/carrello");
   const { data: cartRows } = await supabase.from("cart_items").select("item_type,product_id,service_id,quantity").eq("cart_id", cart.id);
@@ -51,9 +51,9 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
         <label>Nazione<span className="country-fixed" aria-label="Nazione: Italia"><svg className="country-flag" viewBox="0 0 3 2" aria-hidden="true" focusable="false"><path fill="#009246" d="M0 0h1v2H0z" /><path fill="#fff" d="M1 0h1v2H1z" /><path fill="#ce2b37" d="M2 0h1v2H2z" /></svg>Italia</span><input type="hidden" name="venueCountry" value="Italia" /></label>
       </div></fieldset>
       <fieldset className="request-section"><legend className="request-section-title">Logistica</legend><div className="request-logistics-options">
-        <label>Consegna<select name="deliveryResponsibility" defaultValue="customer"><option value="owner">A carico del gestore</option><option value="customer">A carico del cliente</option></select></label>
-        <label>Ritiro<select name="pickupResponsibility" defaultValue="customer"><option value="owner">A carico del gestore</option><option value="customer">A carico del cliente</option></select></label>
-      </div></fieldset>
+        <label>Consegna<select name="deliveryResponsibility" defaultValue={publicSettings?.[0]?.delivery_enabled ? "owner" : "customer"}>{publicSettings?.[0]?.delivery_enabled&&<option value="owner">A carico del gestore</option>}<option value="customer">A carico del cliente</option></select></label>
+        <label>Ritiro<select name="pickupResponsibility" defaultValue="customer"><option value="customer">A carico del cliente</option>{publicSettings?.[0]?.pickup_enabled&&<option value="owner">A carico del gestore</option>}</select></label>
+      </div>{publicSettings?.[0]?.pickup_enabled&&publicSettings[0].pickup_address&&<p><strong>Ritiro:</strong> {publicSettings[0].pickup_address}</p>}{publicSettings?.[0]?.pickup_instructions&&<p>{publicSettings[0].pickup_instructions}</p>}</fieldset>
       <section className="request-section request-notes"><label htmlFor="notes">Note aggiuntive</label><textarea id="notes" name="notes" maxLength={2000} rows={4} placeholder="Raccontaci eventuali esigenze particolari" /></section>
       <div className="request-footer"><label className="request-privacy"><input type="checkbox" name="privacy" required /><span>Ho letto e accetto il trattamento dei dati per gestire la richiesta.</span></label><button className="request-submit" type="submit">Invia richiesta</button></div>
     </form>

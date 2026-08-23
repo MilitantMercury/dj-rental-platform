@@ -31,14 +31,14 @@ export async function uploadCatalogImage(data: FormData) {
   try { optimizedImage = await optimizeCatalogImage(file); }
   catch { return fail("L’immagine non è valida o non può essere elaborata."); }
 
+  const currentProductImage = kind === "products"
+    ? (await supabase.from("product_images").select("id,storage_path,sort_order").eq("product_id", entityId).order("sort_order").limit(1).maybeSingle()).data
+    : null;
   const previousPath = kind === "categories"
     ? (await supabase.from("categories").select("image_path").eq("id", entityId).maybeSingle()).data?.image_path
     : kind === "services"
       ? (await supabase.from("services").select("image_path").eq("id", entityId).maybeSingle()).data?.image_path
-      : null;
-  const nextImageOrder = kind === "products"
-    ? (((await supabase.from("product_images").select("sort_order").eq("product_id", entityId).order("sort_order", { ascending: false }).limit(1).maybeSingle()).data?.sort_order ?? 0) + 10)
-    : 0;
+      : currentProductImage?.storage_path;
   const path = catalogImagePath(kind, entityId, "webp");
   const { error: uploadError } = await supabase.storage.from("catalog").upload(path, optimizedImage, { contentType: "image/webp", cacheControl: "31536000", upsert: false });
   if (uploadError) fail("Caricamento non riuscito. Usa JPEG, PNG, WebP o AVIF entro 5 MB.");
@@ -47,8 +47,21 @@ export async function uploadCatalogImage(data: FormData) {
     ? await supabase.from("categories").update({ image_path: path, image_alt: altText }).eq("id", entityId).select("id").maybeSingle()
     : kind === "services"
       ? await supabase.from("services").update({ image_path: path, image_alt: altText }).eq("id", entityId).select("id").maybeSingle()
-      : await supabase.from("product_images").insert({ product_id: entityId, storage_path: path, alt_text: altText, sort_order: nextImageOrder }).select("id").maybeSingle();
-  if (mutation.error || !mutation.data) { await supabase.storage.from("catalog").remove([path]); fail("Immagine caricata ma non associata all’elemento."); }
+      : currentProductImage
+        ? await supabase.from("product_images").update({ storage_path: path, alt_text: altText }).eq("id", currentProductImage.id).select("id").maybeSingle()
+        : await supabase.from("product_images").insert({ product_id: entityId, storage_path: path, alt_text: altText, sort_order: 10 }).select("id").maybeSingle();
+  if (mutation.error || !mutation.data) {
+    console.error("Catalog media association failed", JSON.stringify({
+      kind,
+      entityId,
+      code: mutation.error?.code,
+      message: mutation.error?.message,
+      details: mutation.error?.details,
+      hint: mutation.error?.hint,
+    }));
+    await supabase.storage.from("catalog").remove([path]);
+    fail("Immagine caricata ma non associata all’elemento.");
+  }
   if (previousPath && previousPath !== path) await supabase.storage.from("catalog").remove([previousPath]);
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");

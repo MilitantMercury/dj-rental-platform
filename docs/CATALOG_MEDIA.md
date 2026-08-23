@@ -10,7 +10,7 @@ Il bucket pubblico `catalog` contiene esclusivamente immagini destinate al catal
 - prodotti: `products/{product_id}/{image_id}.{ext}`;
 - servizi: `services/{service_id}/{image_id}.{ext}`.
 
-Categorie e servizi hanno una copertina sostituibile: dopo un aggiornamento riuscito il vecchio file viene rimosso. I prodotti mantengono una galleria in `product_images`; il gestore puo scegliere la copertina e rimuovere singole immagini.
+Categorie, prodotti e servizi hanno una singola immagine principale sostituibile: dopo un aggiornamento riuscito il vecchio file viene rimosso. Per i prodotti il record resta in `product_images`, così una futura estensione a galleria non richiederà di cambiare il modello dati.
 
 Ogni upload viene validato lato server per MIME, dimensione e firma binaria e associato all’entità solo dopo il caricamento. Se l’associazione fallisce, il file appena caricato viene rimosso. Il testo alternativo è limitato a 250 caratteri; quando è assente, l’interfaccia pubblica usa il nome dell’elemento.
 
@@ -30,7 +30,7 @@ L’ordine di categorie, prodotti, servizi e immagini prodotto viene modificato 
 
 L’owner può modificare nome, slug, categoria, descrizione, prezzo indicativo e i campi specifici di prodotti e servizi senza ricreare l’elemento. L’anteprima privata sotto `/area-riservata/catalogo/anteprima/...` verifica nuovamente ruolo e sessione lato server e permette di controllare anche le bozze senza renderle pubbliche.
 
-La galleria prodotto supporta trascinamento per mouse e puntatore; al rilascio invia l’intera sequenza a `reorder_product_images`, che verifica appartenenza, duplicati e completezza prima di aggiornarla atomicamente. I pulsanti Su/Giù restano disponibili come fallback da tastiera.
+L’interfaccia corrente gestisce una sola immagine per prodotto. Le funzioni database di ordinamento restano disponibili ma non sono esposte nel back-office finché la galleria non sarà inclusa nell’ambito funzionale.
 
 ## Esperienza del catalogo pubblico
 

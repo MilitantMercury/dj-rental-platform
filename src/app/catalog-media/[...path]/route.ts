@@ -9,5 +9,17 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   }
   const supabase = await createClient();
   const { data } = supabase.storage.from("catalog").getPublicUrl(storagePath);
-  return NextResponse.redirect(data.publicUrl, { status: 307, headers: { "Cache-Control": "public, max-age=3600" } });
+  const upstream = await fetch(data.publicUrl, { cache: "force-cache" });
+  const contentType = upstream.headers.get("content-type");
+
+  if (!upstream.ok || !upstream.body || !contentType?.startsWith("image/")) {
+    return new NextResponse(null, { status: 404 });
+  }
+
+  return new NextResponse(upstream.body, {
+    headers: {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": contentType,
+    },
+  });
 }

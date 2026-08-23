@@ -1,6 +1,14 @@
 export type RequestedQuoteLine = { id: string; quantity: number };
 export type DraftQuoteLine = { sourceRequestItemId: string; quantity: number };
 
+export function catalogReferencePrice(
+  item: { itemType: "product" | "service"; itemId: string },
+  productPrices: ReadonlyMap<string, number | null>,
+  servicePrices: ReadonlyMap<string, number | null>,
+) {
+  return (item.itemType === "product" ? productPrices : servicePrices).get(item.itemId) ?? 0;
+}
+
 export function hasExactRequestedQuantities(
   requested: RequestedQuoteLine[],
   draft: DraftQuoteLine[],

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { euroToCents } from "@/lib/quote-pricing";
 
 const text = (data: FormData, key: string) => String(data.get(key) ?? "").trim();
 const positiveInt = (data: FormData, key: string) => { const raw = text(data, key); if (!raw) return null; const value = Number.parseInt(raw, 10); return Number.isInteger(value) && value >= 0 ? value : null; };
@@ -26,14 +27,14 @@ export async function createCategory(data: FormData) {
 
 export async function createProduct(data: FormData) {
   const supabase = await requireOwner();
-  const { error: insertError } = await supabase.from("products").insert({ name: text(data, "name"), slug: text(data, "slug"), category_id: text(data, "categoryId") || null, description: text(data, "description"), included_accessories: text(data, "includedAccessories"), reference_price_cents: positiveInt(data, "referencePriceCents"), specifications: {}, active: true });
+  const { error: insertError } = await supabase.from("products").insert({ name: text(data, "name"), slug: text(data, "slug"), category_id: text(data, "categoryId") || null, description: text(data, "description"), included_accessories: text(data, "includedAccessories"), reference_price_cents: euroToCents(data.get("referencePrice")), specifications: {}, active: true });
   if (insertError) error("Prodotto non creato: controlla nome, slug e importo.");
   revalidatePath("/area-riservata/catalogo");
 }
 
 export async function createService(data: FormData) {
   const supabase = await requireOwner();
-  const { error: insertError } = await supabase.from("services").insert({ name: text(data, "name"), slug: text(data, "slug"), category_id: text(data, "categoryId") || null, description: text(data, "description"), conditions: text(data, "conditions"), reference_price_cents: positiveInt(data, "referencePriceCents"), active: true });
+  const { error: insertError } = await supabase.from("services").insert({ name: text(data, "name"), slug: text(data, "slug"), category_id: text(data, "categoryId") || null, description: text(data, "description"), conditions: text(data, "conditions"), reference_price_cents: euroToCents(data.get("referencePrice")), active: true });
   if (insertError) error("Servizio non creato: controlla nome, slug e importo.");
   revalidatePath("/area-riservata/catalogo");
 }
@@ -92,8 +93,8 @@ export async function updateCatalogItem(data: FormData) {
   const updateError = table === "categories"
     ? (await supabase.from("categories").update({ ...common, description: common.description || null, parent_id: text(data, "parentId") || null }).eq("id", id)).error
     : table === "products"
-      ? (await supabase.from("products").update({ ...common, category_id: text(data, "categoryId") || null, included_accessories: text(data, "includedAccessories"), reference_price_cents: positiveInt(data, "referencePriceCents") }).eq("id", id)).error
-      : (await supabase.from("services").update({ ...common, category_id: text(data, "categoryId") || null, conditions: text(data, "conditions"), reference_price_cents: positiveInt(data, "referencePriceCents") }).eq("id", id)).error;
+      ? (await supabase.from("products").update({ ...common, category_id: text(data, "categoryId") || null, included_accessories: text(data, "includedAccessories"), reference_price_cents: euroToCents(data.get("referencePrice")) }).eq("id", id)).error
+      : (await supabase.from("services").update({ ...common, category_id: text(data, "categoryId") || null, conditions: text(data, "conditions"), reference_price_cents: euroToCents(data.get("referencePrice")) }).eq("id", id)).error;
   if (updateError) error("Modifiche non salvate: controlla slug e campi inseriti.");
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");

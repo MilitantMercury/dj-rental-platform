@@ -11,10 +11,26 @@ describe("media catalogo", () => {
   });
 
   it("verifica la firma binaria oltre al MIME dichiarato", async () => {
-    const png = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "valid.png", { type: "image/png" });
+    const sharp = (await import("sharp")).default;
+    const pngBytes = await sharp({ create: { width: 2, height: 2, channels: 3, background: "#000" } }).png().toBuffer();
+    const png = new File([pngBytes], "valid.png", { type: "image/png" });
     const fake = new File(["not an image"], "fake.png", { type: "image/png" });
     expect(await hasValidCatalogImageSignature(png, "png")).toBe(true);
     expect(await hasValidCatalogImageSignature(fake, "png")).toBe(false);
+  });
+  it("accetta un AVIF realmente decodificabile", async () => {
+    const sharp = (await import("sharp")).default;
+    const avifBytes = await sharp({ create: { width: 2, height: 2, channels: 3, background: "#000" } }).avif().toBuffer();
+    const avif = new File([avifBytes], "compatible.avif", { type: "image/avif" });
+
+    expect(await hasValidCatalogImageSignature(avif, "avif")).toBe(true);
+  });
+  it("accetta un formato reale consentito anche se estensione e MIME sono errati", async () => {
+    const sharp = (await import("sharp")).default;
+    const webpBytes = await sharp({ create: { width: 2, height: 2, channels: 3, background: "#000" } }).webp().toBuffer();
+    const renamed = new File([webpBytes], "renamed.jpg", { type: "image/jpeg" });
+
+    expect(await hasValidCatalogImageSignature(renamed, "jpg")).toBe(true);
   });
   it("normalizza le immagini in WebP entro 1920 pixel", async () => {
     const sharp = (await import("sharp")).default;

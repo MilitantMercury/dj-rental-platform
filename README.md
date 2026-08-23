@@ -7,7 +7,7 @@ Piattaforma single-tenant per catalogo, richieste, preventivi e gestione del nol
 Sono disponibili:
 
 - autenticazione Supabase con verifica email e ruoli cliente, collaboratore e owner;
-- hub impostazioni owner e inviti collaboratori (gli inviti richiedono la variabile server-only `SUPABASE_SERVICE_ROLE_KEY`);
+- hub impostazioni owner e inviti collaboratori (gli inviti richiedono la variabile server-only `SUPABASE_SECRET_KEY`; resta supportata la legacy `SUPABASE_SERVICE_ROLE_KEY`);
 - catalogo pubblico e gestione catalogo owner;
 - carrello sincronizzato per utente autenticato e richieste cliente con dati evento, location, logistica e privacy;
 - area pratiche staff con dettaglio e transizioni di stato auditabili;

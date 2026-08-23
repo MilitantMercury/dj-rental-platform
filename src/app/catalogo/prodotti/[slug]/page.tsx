@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createServerSupabaseClient();
-  const { data } = await supabase.from("products").select("id,name,description,included_accessories,reference_price_cents,category_id").eq("slug", slug).eq("active", true).not("published_at", "is", null).maybeSingle();
+  const { data } = await supabase.from("products").select("id,name,description,included_accessories,category_id").eq("slug", slug).eq("active", true).not("published_at", "is", null).maybeSingle();
   if (!data) notFound();
   const [{ data: image }, { data: category }] = await Promise.all([
     supabase.from("product_images").select("storage_path,alt_text").eq("product_id", data.id).order("sort_order").limit(1).maybeSingle(),

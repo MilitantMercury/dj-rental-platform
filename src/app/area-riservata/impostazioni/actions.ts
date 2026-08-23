@@ -42,7 +42,15 @@ export async function saveCommunicationSettings(data: FormData) {
 export async function saveLogisticsSettings(data: FormData) {
   const pickup = checked(data, "pickupEnabled"); const delivery = checked(data, "deliveryEnabled");
   if (!pickup && !delivery) redirect(`${path}?message=Abilita almeno una modalità logistica.`);
-  await save({ pickup_enabled: pickup, delivery_enabled: delivery, pickup_address: value(data, "pickupAddress", 500), pickup_instructions: value(data, "pickupInstructions") }, "Logistica aggiornata.");
+  const street = value(data, "pickupAddressStreet", 160);
+  const number = value(data, "pickupAddressNumber", 20);
+  const postalCode = value(data, "pickupAddressPostalCode", 5);
+  const city = value(data, "pickupAddressCity", 100);
+  const province = value(data, "pickupAddressProvince", 2).toUpperCase();
+  const country = value(data, "pickupAddressCountry", 100) || "Italia";
+  if (pickup && (!street || !number || !/^[0-9]{5}$/.test(postalCode) || !city || !/^[A-Z]{2}$/.test(province))) redirect(`${path}?message=Completa correttamente l’indirizzo di ritiro.`);
+  const formattedAddress = street ? `${street} ${number}, ${postalCode} ${city}${province ? ` (${province})` : ""}, ${country}` : "";
+  await save({ pickup_enabled: pickup, delivery_enabled: delivery, pickup_address: formattedAddress, pickup_address_street: street, pickup_address_number: number, pickup_address_postal_code: postalCode, pickup_address_city: city, pickup_address_province: province, pickup_address_country: country, pickup_instructions: value(data, "pickupInstructions") }, "Logistica aggiornata.");
 }
 
 export async function saveIdentitySettings(data: FormData) {

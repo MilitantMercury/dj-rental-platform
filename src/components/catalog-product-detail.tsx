@@ -4,15 +4,14 @@ import { AddToCart } from "@/components/add-to-cart";
 import { catalogMediaUrl } from "@/lib/catalog-media";
 
 type CatalogProductDetailProps = {
-  product: { id: string; name: string; description: string | null; included_accessories: string | null; reference_price_cents: number | null };
+  product: { id: string; name: string; description: string | null; included_accessories: string | null };
   categoryName: string | null;
   image: { storage_path: string; alt_text: string | null } | null;
 };
 
 export function CatalogProductDetail({ product, categoryName, image }: CatalogProductDetailProps) {
   const description = !product.description || /^descrizione\b/i.test(product.description.trim()) ? "Attrezzatura professionale selezionata e configurata in base alle esigenze del tuo evento." : product.description;
-  const included = product.included_accessories && !/^accessori inclusi\b/i.test(product.included_accessories.trim()) ? product.included_accessories : null;
-  const price = product.reference_price_cents === null ? null : new Intl.NumberFormat("it-IT", { maximumFractionDigits: 2 }).format(product.reference_price_cents / 100);
+  const included = product.included_accessories?.trim() || null;
   return <main className="catalog-public-detail shell">
     <nav className="catalog-public-detail-nav" aria-label="Percorso nel catalogo">
       <Link className="catalog-back" href="/catalogo">← Torna al catalogo</Link>
@@ -23,7 +22,6 @@ export function CatalogProductDetail({ product, categoryName, image }: CatalogPr
       <div className="catalog-owner-preview-copy">
         <div className="catalog-owner-preview-meta"><span>Prodotto</span><span>{categoryName ?? "Attrezzatura"}</span></div>
         <h1>{product.name}</h1>
-        {price && <div className="catalog-public-detail-price"><small>Prezzo indicativo</small><strong>{price} € <span>/ pezzo</span></strong></div>}
         <section className="catalog-public-detail-description"><small>Descrizione</small><p className="catalog-owner-preview-description">{description}</p></section>
         {included && <section className="catalog-public-detail-included"><small>Materiale incluso</small><p>{included}</p></section>}
         <div className="catalog-public-detail-actions"><AddToCart id={product.id} name={product.name} /><Link href="/richiesta">Prepara la richiesta <span aria-hidden="true">↗</span></Link></div>

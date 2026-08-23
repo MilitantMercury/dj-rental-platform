@@ -9,6 +9,8 @@ import {
   requestStatusTone,
 } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
+import { PracticesToolbar } from "@/components/practices-toolbar";
+import { AppMessage } from "@/components/app-message";
 import { expireDueOptions } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -95,24 +97,13 @@ export default async function PracticesPage({
           <strong>{allRequests.length}</strong> richieste totali
         </div>
       </div>
-      {staff.role === "owner" && <form action={expireDueOptions}><button className="status-button" type="submit">Aggiorna opzioni scadute</button></form>}
-      {message && <div className="auth-message catalog-message" role="status">{message.startsWith("opzioni-aggiornate-") ? `${message.replace("opzioni-aggiornate-", "")} opzioni scadute aggiornate.` : message.replaceAll("-", " ")}</div>}
-      <nav className="practice-view-tabs" aria-label="Viste delle pratiche">
-        <Link
-          className={!isArchiveView ? "is-active" : undefined}
-          href="/area-riservata/pratiche"
-          aria-current={!isArchiveView ? "page" : undefined}
-        >
-          Da gestire <span>{activeRequests.length}</span>
-        </Link>
-        <Link
-          className={isArchiveView ? "is-active" : undefined}
-          href="/area-riservata/pratiche?vista=archivio"
-          aria-current={isArchiveView ? "page" : undefined}
-        >
-          Archivio <span>{archivedRequests.length}</span>
-        </Link>
-      </nav>
+      {message && <AppMessage message={message.startsWith("opzioni-aggiornate-") ? `${message.replace("opzioni-aggiornate-", "")} opzioni scadute aggiornate.` : message} />}
+      <PracticesToolbar
+        activeCount={activeRequests.length}
+        archivedCount={archivedRequests.length}
+        isArchiveView={isArchiveView}
+        expireAction={staff.role === "owner" ? expireDueOptions : undefined}
+      />
       {isArchiveView && (
         <nav className="practice-archive-filters" aria-label="Filtra archivio">
           <Link

@@ -7,17 +7,18 @@ type CurrencyInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "defaultValue" | "onBlur" | "onChange" | "value"
 > & {
-  initialCents: number;
+  initialCents: number | null;
 };
 
 export function CurrencyInput({ initialCents, ...props }: CurrencyInputProps) {
-  const [value, setValue] = useState(() => formatEuroInput(initialCents));
+  const [value, setValue] = useState(() => initialCents === null ? "" : formatEuroInput(initialCents));
 
   const selectValue = (event: FocusEvent<HTMLInputElement>) => {
     event.currentTarget.select();
   };
 
   const normalizeValue = () => {
+    if (!value.trim()) return;
     const cents = euroToCents(value);
     if (cents !== null) setValue(formatEuroInput(cents));
   };

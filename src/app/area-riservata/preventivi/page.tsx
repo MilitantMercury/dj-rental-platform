@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { formatEventDateTime, formatRomeDateTime } from "@/lib/date-time";
 import { requestStatusLabel, requestStatusTone } from "@/lib/request-status";
 import { createClient } from "@/lib/supabase/server";
+import { AppMessage } from "@/components/app-message";
 import { respondToQuote } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ export default async function CustomerQuotes({ searchParams }: { searchParams: P
   return <main className="dashboard shell quotes-page">
     <Link href="/area-riservata">← Area riservata</Link>
     <header className="quotes-header"><div><p className="eyebrow dark">Preventivi</p><h1>Le tue proposte.</h1><p>Apri una pratica per consultare la proposta attuale e lo storico delle sue revisioni.</p></div><div className="quotes-count"><strong>{quoteGroups.length}</strong> pratiche con proposta</div></header>
-    {message && <div className="quotes-message" role="status">{messageCopy[message] ?? "Operazione completata."}</div>}
+    {message && <AppMessage message={messageCopy[message] ?? "Operazione completata."} />}
     {quoteGroups.length ? <section className="quotes-list" aria-label="Preventivi per pratica">{quoteGroups.map(({ quote, request, revisions: requestRevisions }) => {
       if (!request) return null;
       const currentRevision = requestRevisions.find((revision) => revision.id === quote.current_revision_id);

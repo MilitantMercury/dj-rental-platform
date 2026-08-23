@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(17);
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -29,6 +29,8 @@ select results_eq('select count(*)::bigint from public.categories', array[1::big
 select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000002', true);
 select lives_ok($$insert into storage.objects (bucket_id, name) values ('catalog', 'products/20000000-0000-0000-0000-000000000002/30000000-0000-0000-0000-000000000002.webp')$$, 'L owner carica immagini in un percorso catalogo valido');
 select lives_ok($$update public.categories set image_path = 'categories/' || id || '/30000000-0000-0000-0000-000000000003.webp', image_alt = 'Impianto audio' where slug = 'audio'$$, 'L aggiornamento immagine categoria produce audit');
+select lives_ok($$insert into public.product_images (product_id, storage_path, alt_text, sort_order) select id, 'products/' || id || '/30000000-0000-0000-0000-000000000004.webp', 'Console frontale', 10 from public.products where slug = 'console-test'$$, 'L owner associa una immagine al prodotto');
+select results_eq($$select count(*)::bigint from public.audit_logs where entity_type = 'product_images' and action = 'catalog_media_insert'$$, array[1::bigint], 'L associazione immagine prodotto produce audit');
 select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000001', true);
 select results_eq('select count(*)::bigint from public.audit_logs', array[0::bigint], 'Il cliente non consulta gli audit media');
 select set_config('request.jwt.claim.sub', '20000000-0000-0000-0000-000000000002', true);

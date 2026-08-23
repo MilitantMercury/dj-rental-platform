@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CustomerProfileForm, StaffProfileForm } from "./profile-form";
 import { BackLink } from "@/components/back-link";
+import { AppMessage } from "@/components/app-message";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export default async function ProfilePage({
         <span>{staff ? (staff.role === "owner" ? "Owner" : "Collaboratore") : "Cliente"}</span>
       </div>
 
-      {message && <div className="profile-message" role="status">{message}</div>}
+      {message && <AppMessage message={message} />}
 
       {staff ? (
         <StaffProfileForm

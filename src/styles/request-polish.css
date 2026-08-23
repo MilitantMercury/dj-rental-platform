@@ -35,7 +35,16 @@
 .practices-header h1 { margin:12px 0 0; font-size:clamp(48px,7vw,88px); }
 .practices-count { padding:18px 22px; border:1px solid #c9c4b8; background:#ebe6dc; font-weight:800; }
 .practices-count strong { display:block; font-size:32px; }
-.practice-view-tabs { display:flex; gap:10px; margin:-12px 0 28px; padding-bottom:14px; border-bottom:1px solid #c9c4b8; }
+.practices-toolbar { display:grid; gap:18px; margin:0 0 28px; }
+.practices-maintenance { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:18px 20px; border:1px solid #c9c4b8; border-left:4px solid var(--accent); background:#fffdf8; }
+.practices-maintenance > div { display:grid; gap:4px; }
+.practices-maintenance strong { font-size:14px; }
+.practices-maintenance span { color:#656159; font-size:13px; line-height:1.45; }
+.practices-maintenance form { flex:0 0 auto; }
+.dashboard .practices-maintenance-button { padding:11px 15px; border:1px solid #11110f; background:#11110f; color:white; font-size:12px; box-shadow:3px 3px 0 var(--accent); }
+.dashboard .practices-maintenance-button:hover { background:var(--accent); color:#11110f; box-shadow:3px 3px 0 #11110f; }
+.dashboard .practices-maintenance-button:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.practice-view-tabs { display:flex; gap:10px; margin:0; padding-bottom:14px; border-bottom:1px solid #c9c4b8; }
 .practice-view-tabs a { display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid #c9c4b8; background:#fffdf8; text-decoration:none; font-weight:800; }
 .practice-view-tabs a span { display:grid; place-items:center; min-width:25px; height:25px; padding:0 7px; border-radius:999px; background:#e9e0d2; font-size:11px; }
 .practice-view-tabs a.is-active { border-color:#11110f; background:#11110f; color:white; box-shadow:3px 3px 0 var(--accent); }
@@ -61,7 +70,7 @@
 .status-badge.status-badge--operational { background:#8ec5ff; }
 .status-badge.status-badge--closed { background:#d7d3ca; color:#45423c; box-shadow:3px 3px 0 #77736a; }
 .status-badge.status-badge--critical { background:#ff9b9b; color:#491313; box-shadow:3px 3px 0 #6e2020; }
-@media(max-width:700px){.practices-header{align-items:start;flex-direction:column}.practice-list{grid-template-columns:1fr}.practices-count{width:100%}}
+@media(max-width:700px){.practices-header{align-items:start;flex-direction:column}.practice-list{grid-template-columns:1fr}.practices-count{width:100%}.practices-maintenance{align-items:stretch;flex-direction:column;gap:16px}.practices-maintenance form,.dashboard .practices-maintenance-button{width:100%}.practice-view-tabs a{justify-content:space-between;min-width:0;flex:1}.practice-view-tabs a span{flex:0 0 auto}}
 .practice-detail-page { padding-top:54px; padding-bottom:100px; }
 .practice-detail-header { display:flex; justify-content:space-between; align-items:end; gap:24px; margin:30px 0 46px; }
 .practice-detail-header .status-badge { padding:12px 18px; border:1px solid #11110f; background:#d9ff43; color:#11110f; font-size:12px; letter-spacing:.08em; text-transform:uppercase; box-shadow:4px 4px 0 #11110f; }

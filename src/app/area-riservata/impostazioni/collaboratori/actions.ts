@@ -11,8 +11,8 @@ export async function inviteCollaborator(data: FormData) {
   const email = text(data, "email").toLowerCase(); const displayName = text(data, "displayName").slice(0, 100);
   if (!email || !displayName) redirect(`${path}?message=Nome ed email sono obbligatori.`);
   const { supabase } = await requireOwner(); const admin = createAdminClient();
-  if (!admin) redirect(`${path}?message=Inviti non configurati: manca la chiave server Supabase.`);
-  const { data: invitation, error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo: `${getAppUrl()}/auth/callback`, data: { first_name: displayName } });
+  if (!admin) redirect(`${path}?message=Inviti non configurati: aggiungi SUPABASE_SECRET_KEY al server.`);
+  const { data: invitation, error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo: `${getAppUrl()}/nuova-password`, data: { first_name: displayName } });
   if (error || !invitation.user) redirect(`${path}?message=Invito non inviato. Verifica che l’email non sia già registrata.`);
   const { error: profileError } = await supabase.from("staff_profiles").upsert({ user_id: invitation.user.id, role: "collaborator", display_name: displayName, active: true });
   if (profileError) redirect(`${path}?message=Invito inviato, ma profilo collaboratore non creato.`);

@@ -7,7 +7,7 @@ describe("pagina iniziale", () => {
     render(<HomeView />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /Il tuo evento,\s*con il suono giusto\./,
+      /Il tuo evento\.\s*Il momento\s*che resta\./,
     );
     expect(screen.getByText(/non equivale a una prenotazione/i)).toBeVisible();
   });

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import "../styles/homepage-wow.css";
+import "../styles/catalog-wow.css";
 import { SiteHeader } from "@/components/site-header";
 import { FormFeedbackBridge } from "@/components/form-feedback-bridge";
 import { createClient } from "@/lib/supabase/server";

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AddToCart } from "@/components/add-to-cart";
+import { AmbientMotionCanvas } from "@/components/ambient-motion-canvas";
 import { catalogMediaUrl } from "@/lib/catalog-media";
 import { matchesCatalogSearch } from "@/lib/catalog-search";
 import { createClient } from "@/lib/supabase/server";
@@ -26,9 +27,23 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
   const primaryProductImage = new Map<string, NonNullable<typeof productImages>[number]>();
   for (const image of productImages ?? []) if (!primaryProductImage.has(image.product_id)) primaryProductImage.set(image.product_id, image);
   const resultCount = filteredProducts.length + filteredServices.length;
+  const heroProduct = (products ?? []).find((item) => primaryProductImage.has(item.id));
+  const heroProductMedia = heroProduct ? primaryProductImage.get(heroProduct.id) : undefined;
+  const heroService = (services ?? []).find((item) => item.image_path);
 
   return <main className="catalog-public">
-    <header className="catalog-public-hero"><div className="shell catalog-public-hero-inner"><div><p className="eyebrow">Catalogo professionale</p><h1>Il setup giusto.<br /><em>Senza compromessi.</em></h1></div><div className="catalog-public-hero-copy"><p>Scegli attrezzatura e servizi per raccontarci il tuo evento. Verificheremo insieme configurazione e disponibilità.</p><span>Nessun pagamento ora</span><span>Non è una prenotazione</span></div></div></header>
+    <header className="catalog-public-hero">
+      <AmbientMotionCanvas className="catalog-wow-canvas" />
+      <div className="shell catalog-public-hero-inner">
+        <div className="catalog-wow-intro"><p className="eyebrow">Catalogo professionale</p><h1>Costruisci<br />il tuo <em>suono.</em></h1><p>Scegli attrezzatura e servizi. Noi verifichiamo ogni dettaglio e prepariamo una proposta costruita sul tuo evento.</p><div className="catalog-wow-promises"><span>Selezione professionale</span><span>Proposta su misura</span></div></div>
+        <div className="catalog-wow-stage" aria-label="In evidenza dal catalogo">
+          <div className="catalog-wow-stage-glow" />
+          <div className="catalog-wow-feature catalog-wow-feature-main">{heroProductMedia && heroProduct ? <><Image src={catalogMediaUrl(heroProductMedia.storage_path) ?? ""} alt={heroProductMedia.alt_text || heroProduct.name} fill priority sizes="42vw" /><span><small>Attrezzatura</small><strong>{heroProduct.name}</strong></span></> : <CatalogPlaceholder name="DJ" />}</div>
+          {heroService?.image_path && <div className="catalog-wow-feature catalog-wow-feature-side"><Image src={catalogMediaUrl(heroService.image_path) ?? ""} alt={heroService.image_alt || heroService.name} fill sizes="18vw" /><span><small>Servizio</small><strong>{heroService.name}</strong></span></div>}
+          <div className="catalog-wow-stamp"><strong>{resultCount}</strong><span>soluzioni<br />da esplorare</span></div>
+        </div>
+      </div>
+    </header>
     <div className="shell catalog-public-content">
       <search className="catalog-search" aria-label="Cerca nel catalogo"><form action="/catalogo"><div><label htmlFor="catalog-search-input">Cosa stai cercando?</label><input id="catalog-search-input" type="search" name="q" defaultValue={searchQuery} placeholder="Es. console, cuffie, vocalist…" maxLength={80} /></div>{selectedCategory && <input type="hidden" name="categoria" value={selectedCategory.slug} />}<button type="submit"><span aria-hidden="true">⌕</span> Cerca</button>{searchQuery && <Link href={selectedCategory ? `/catalogo?categoria=${selectedCategory.slug}` : "/catalogo"}>Azzera ricerca</Link>}</form></search>
       <nav className="catalog-filter" aria-label="Filtra il catalogo per categoria">

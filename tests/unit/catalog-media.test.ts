@@ -32,14 +32,21 @@ describe("media catalogo", () => {
 
     expect(await hasValidCatalogImageSignature(renamed, "jpg")).toBe(true);
   });
-  it("normalizza le immagini in WebP entro 1920 pixel", async () => {
+  it("normalizza le immagini in WebP entro 2560 pixel senza ridurre sorgenti già adatte", async () => {
     const sharp = (await import("sharp")).default;
     const source = await sharp({ create: { width: 2400, height: 1200, channels: 3, background: "#ff9900" } }).png().toBuffer();
     const optimized = await optimizeCatalogImage(new File([source], "hero.png", { type: "image/png" }));
     const metadata = await sharp(optimized).metadata();
     expect(metadata.format).toBe("webp");
-    expect(metadata.width).toBe(1920);
-    expect(metadata.height).toBe(960);
+    expect(metadata.width).toBe(2400);
+    expect(metadata.height).toBe(1200);
+  });
+  it("rifiuta immagini che diventerebbero sgranate nelle schede pubbliche", async () => {
+    const sharp = (await import("sharp")).default;
+    const source = await sharp({ create: { width: 1000, height: 1000, channels: 3, background: "#111" } }).png().toBuffer();
+
+    await expect(optimizeCatalogImage(new File([source], "small.png", { type: "image/png" })))
+      .rejects.toThrow(/almeno 1200 px/);
   });
   it("rifiuta file non immagine e file oltre 5 MB", () => {
     expect(validateCatalogImage(new File(["text"], "note.txt", { type: "text/plain" })).error).toMatch(/Formato/);

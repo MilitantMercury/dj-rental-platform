@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AddToCart } from "@/components/add-to-cart";
+import { AmbientMotionCanvas } from "@/components/ambient-motion-canvas";
 import { catalogMediaUrl } from "@/lib/catalog-media";
 
 type CatalogServiceDetailProps = {
@@ -10,21 +11,25 @@ type CatalogServiceDetailProps = {
 
 export function CatalogServiceDetail({ service, categoryName }: CatalogServiceDetailProps) {
   const description = !service.description || /^descrizione\b/i.test(service.description.trim()) ? "Un servizio professionale costruito intorno al programma e allo stile del tuo evento." : service.description;
-  return <main className="catalog-public-detail shell">
-    <nav className="catalog-public-detail-nav" aria-label="Percorso nel catalogo">
-      <Link className="catalog-back" href="/catalogo">← Torna al catalogo</Link>
-      <span>Servizi / {categoryName ?? "Senza categoria"}</span>
-    </nav>
-    <article className="catalog-owner-preview-card is-services catalog-public-detail-card">
-      <div className="catalog-owner-preview-media">{service.image_path ? <Image src={catalogMediaUrl(service.image_path) ?? ""} alt={service.image_alt || service.name} fill priority sizes="(max-width: 800px) 100vw, 52vw" /> : <span>{service.name.slice(0, 2).toUpperCase()}</span>}</div>
-      <div className="catalog-owner-preview-copy">
-        <div className="catalog-owner-preview-meta"><span>Servizio</span><span>{categoryName ?? "Supporto professionale"}</span></div>
-        <h1>{service.name}</h1>
-        <section className="catalog-public-detail-description"><small>Descrizione</small><p className="catalog-owner-preview-description">{description}</p></section>
-        <div className="catalog-public-detail-actions"><AddToCart id={service.id} name={service.name} type="service" /><Link href="/richiesta">Prepara la richiesta <span aria-hidden="true">↗</span></Link></div>
-        <p className="catalog-public-detail-note">L’aggiunta al carrello non costituisce una prenotazione. Dettagli e disponibilità saranno verificati nella proposta.</p>
-      </div>
-    </article>
-    {service.conditions && <section className="catalog-owner-preview-info catalog-public-detail-info"><p className="eyebrow dark">Dettagli del servizio</p><h2>Condizioni</h2><p>{service.conditions}</p></section>}
+  return <main className="catalog-public-detail catalog-public-service-detail">
+    <AmbientMotionCanvas className="catalog-detail-canvas" />
+    <div className="shell catalog-public-detail-shell">
+      <nav className="catalog-public-detail-nav" aria-label="Percorso nel catalogo">
+        <Link className="catalog-back" href="/catalogo">← Torna al catalogo</Link>
+        <span>Servizi / {categoryName ?? "Senza categoria"}</span>
+      </nav>
+      <article className="catalog-owner-preview-card is-services catalog-public-detail-card">
+        <div className="catalog-owner-preview-media">{service.image_path ? <Image src={catalogMediaUrl(service.image_path) ?? ""} alt={service.image_alt || service.name} fill priority quality={92} sizes="(max-width: 800px) 100vw, 52vw" /> : <span>{service.name.slice(0, 2).toUpperCase()}</span>}<div className="catalog-detail-media-caption"><small>Esperienza professionale</small><strong>{categoryName ?? "Servizio su misura"}</strong></div></div>
+        <div className="catalog-owner-preview-copy">
+          <div className="catalog-owner-preview-meta"><span>Servizio</span><span>{categoryName ?? "Supporto professionale"}</span></div>
+          <p className="catalog-detail-kicker">Il supporto giusto, nel momento giusto.</p>
+          <h1>{service.name}</h1>
+          <div className="catalog-detail-information"><section className="catalog-public-detail-description"><small>Descrizione</small><p className="catalog-owner-preview-description">{description}</p></section></div>
+          <div className="catalog-public-detail-actions"><AddToCart id={service.id} name={service.name} type="service" /><Link href="/richiesta">Prepara la richiesta <span aria-hidden="true">↗</span></Link></div>
+          <p className="catalog-public-detail-note"><span aria-hidden="true">✓</span> L’aggiunta al carrello non costituisce una prenotazione. Dettagli e disponibilità saranno verificati nella proposta.</p>
+        </div>
+      </article>
+      {service.conditions && <section className="catalog-public-detail-info catalog-service-conditions"><div><p className="eyebrow">Dettagli del servizio</p><h2>Condizioni operative</h2></div><div className="catalog-service-condition-value"><small>La formula prevista</small><p>{service.conditions}</p></div></section>}
+    </div>
   </main>;
 }

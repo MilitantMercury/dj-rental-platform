@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { catalogImagePath, hasValidCatalogImageSignature, optimizeCatalogImage, validateCatalogImage, type CatalogMediaKind } from "@/lib/catalog-media";
+import { CATALOG_IMAGE_TOO_SMALL_MESSAGE, catalogImagePath, hasValidCatalogImageSignature, optimizeCatalogImage, validateCatalogImage, type CatalogMediaKind } from "@/lib/catalog-media";
 import { createClient } from "@/lib/supabase/server";
 
 const fail = (message: string): never => redirect(`/area-riservata/catalogo?message=${encodeURIComponent(message)}`);
@@ -29,7 +29,7 @@ export async function uploadCatalogImage(data: FormData) {
   const supabase = await requireOwner();
   let optimizedImage: Buffer;
   try { optimizedImage = await optimizeCatalogImage(file); }
-  catch { return fail("L’immagine non è valida o non può essere elaborata."); }
+  catch (error) { return fail(error instanceof Error && error.message === CATALOG_IMAGE_TOO_SMALL_MESSAGE ? error.message : "L’immagine non è valida o non può essere elaborata."); }
 
   const currentProductImage = kind === "products"
     ? (await supabase.from("product_images").select("id,storage_path,sort_order").eq("product_id", entityId).order("sort_order").limit(1).maybeSingle()).data

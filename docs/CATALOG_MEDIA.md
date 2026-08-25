@@ -6,11 +6,12 @@ Il bucket pubblico `catalog` contiene esclusivamente immagini destinate al catal
 
 - formati: JPEG, PNG, WebP e AVIF;
 - dimensione massima: 5 MB;
+- risoluzione minima: 800 px sul lato corto e 1200 px sul lato lungo;
 - categorie: `categories/{category_id}/{image_id}.{ext}`;
 - prodotti: `products/{product_id}/{image_id}.{ext}`;
 - servizi: `services/{service_id}/{image_id}.{ext}`.
 
-Categorie, prodotti e servizi hanno una singola immagine principale sostituibile: dopo un aggiornamento riuscito il vecchio file viene rimosso. Per i prodotti il record resta in `product_images`, così una futura estensione a galleria non richiederà di cambiare il modello dati.
+Categorie e servizi hanno una singola immagine principale sostituibile. I prodotti supportano una galleria ordinata fino a 5 immagini; la prima immagine è la copertina usata nelle liste del catalogo.
 
 Ogni upload viene validato lato server per MIME, dimensione e firma binaria e associato all’entità solo dopo il caricamento. Se l’associazione fallisce, il file appena caricato viene rimosso. Il testo alternativo è limitato a 250 caratteri; quando è assente, l’interfaccia pubblica usa il nome dell’elemento.
 
@@ -20,7 +21,7 @@ Caricamenti, sostituzioni, cambi copertina e rimozioni sono registrati in `audit
 
 ## Ottimizzazione, ordine e pubblicazione
 
-Gli upload vengono decodificati lato server, orientati secondo i metadati, ridimensionati senza ingrandimento a un massimo di 1920 px per lato e salvati in WebP qualità 82. Il file pubblico non conserva i metadati dell’originale e usa una cache immutabile annuale; il limite della Server Action è 6 MB, superiore al limite applicativo di 5 MB.
+Gli upload vengono decodificati lato server, orientati secondo i metadati, ridimensionati senza ingrandimento a un massimo di 2560 px per lato e salvati in WebP qualità 90. Il file pubblico non conserva i metadati dell’originale e usa una cache immutabile annuale; il limite della Server Action è 6 MB, superiore al limite applicativo di 5 MB.
 
 Categorie, prodotti e servizi nascono in bozza (`published_at` nullo). La pubblicazione valorizza `published_at` e rende l’elemento leggibile dalle policy pubbliche; la disattivazione resta una scelta separata e preserva lo storico. Owner e trigger database registrano pubblicazione, ritiro in bozza, stato e riordino in `audit_logs`.
 
@@ -30,8 +31,10 @@ L’ordine di categorie, prodotti, servizi e immagini prodotto viene modificato 
 
 L’owner può modificare nome, slug, categoria, descrizione, prezzo indicativo e i campi specifici di prodotti e servizi senza ricreare l’elemento. L’anteprima privata sotto `/area-riservata/catalogo/anteprima/...` verifica nuovamente ruolo e sessione lato server e permette di controllare anche le bozze senza renderle pubbliche.
 
-L’interfaccia corrente gestisce una sola immagine per prodotto. Le funzioni database di ordinamento restano disponibili ma non sono esposte nel back-office finché la galleria non sarà inclusa nell’ambito funzionale.
+Nel back-office l’owner può aggiungere immagini senza sostituire le precedenti, scegliere la copertina, riordinare la galleria tramite trascinamento o pulsanti accessibili e rimuovere singoli media.
 
 ## Esperienza del catalogo pubblico
 
 Il catalogo pubblico presenta le categorie in una fascia fotografica orizzontale a riga singola. La fascia resta compatta al crescere del catalogo ed è scorribile con mouse, trackpad, tastiera e touch; il filtro selezionato usa un URL condivisibile. Prodotti e servizi usano griglie responsive e, quando una sezione contiene un solo elemento, una card editoriale orizzontale su desktop. In assenza di un media associato viene mostrato un fallback esplicito, senza riutilizzare automaticamente immagini appartenenti ad altre entità.
+
+Le card prodotto fanno scorrere automaticamente le immagini disponibili con dissolvenza, leggero movimento e indicatore di avanzamento; l’animazione si ferma al passaggio del puntatore e quando la card esce dalla viewport. Il dettaglio prodotto mostra la galleria con immagine principale, contatore, frecce, miniature e gesto di scorrimento orizzontale. La navigazione è disponibile anche tramite frecce della tastiera e tutte le animazioni rispettano `prefers-reduced-motion`.

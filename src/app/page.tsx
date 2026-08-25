@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AmbientMotionCanvas } from "@/components/ambient-motion-canvas";
+import { JourneyProgress } from "@/components/journey-progress";
 import { createClient } from "@/lib/supabase/server";
 
-const services = [
-  { number: "01", title: "Attrezzatura selezionata", text: "Impianti audio, console, luci e accessori scelti in base allo spazio e al tipo di evento." },
-  { number: "02", title: "Supporto professionale", text: "Servizi tecnici e DJ coordinati con le necessità reali della tua serata." },
-  { number: "03", title: "Proposta su misura", text: "Una richiesta chiara, verificata dal gestore prima di qualsiasi conferma definitiva." },
+const journeySteps = [
+  { number: "01", kind: "profile", label: "Entra", title: "Registrati", text: "Crea il tuo profilo: bastano i dati necessari per preparare la richiesta." },
+  { number: "02", kind: "setup", label: "Scegli", title: "Componi il setup", text: "Seleziona attrezzatura e servizi dal catalogo, senza pagare online." },
+  { number: "03", kind: "check", label: "Prepariamo", title: "Verifichiamo tutto", text: "Controlliamo disponibilità, compatibilità e dettagli del tuo evento." },
+  { number: "04", kind: "route", label: "Ci siamo", title: "Consegna o ritiro", text: "Scegli se ricevere il materiale oppure passare a ritirarlo in sede." },
 ] as const;
 
 type FeaturedProduct = { id: string; name: string; slug: string };
@@ -18,10 +20,10 @@ export default async function Home() {
     supabase.rpc("get_public_app_settings"),
   ]);
   const featured: FeaturedProduct[] = products ?? [];
-  return <HomeView featured={featured} intro={publicSettings?.[0]?.site_intro || undefined} publicName={publicSettings?.[0]?.public_name || undefined} />;
+  return <HomeView featured={featured} intro={publicSettings?.[0]?.site_intro || undefined} />;
 }
 
-export function HomeView({ featured = [], intro = "Scegli attrezzatura e servizi professionali. Raccontaci il tuo evento e ricevi una proposta costruita davvero sulle tue esigenze.", publicName = "Noleggio DJ" }: { featured?: FeaturedProduct[]; intro?: string; publicName?: string }) {
+export function HomeView({ featured = [], intro = "Scegli attrezzatura e servizi professionali. Raccontaci il tuo evento e ricevi una proposta costruita davvero sulle tue esigenze." }: { featured?: FeaturedProduct[]; intro?: string }) {
   return <main>
     <section className="hero wow-hero" aria-labelledby="hero-title">
       <div className="wow-hero-media" aria-hidden="true"><Image src="/images/homepage-dj-sharp-4k.webp" alt="" fill priority quality={92} sizes="100vw" /></div>
@@ -51,9 +53,18 @@ export function HomeView({ featured = [], intro = "Scegli attrezzatura e servizi
         <AmbientMotionCanvas />
         <div className="wow-story-caption"><span>Preparazione reale</span><strong>Ogni dettaglio<br />prima che inizi.</strong></div>
       </div>
-      <div className="shell wow-story-steps">{services.map((service,index)=><article key={service.number}><div><span>{service.number}</span><small>{index === 0 ? "Ascoltiamo" : index === 1 ? "Progettiamo" : "Confermiamo"}</small></div><h3>{service.title}</h3><p>{service.text}</p></article>)}</div>
+      <div className="shell wow-journey" aria-label="Come funziona il servizio">
+        <JourneyProgress />
+        {journeySteps.map(step => <article key={step.number}>
+          <div className="wow-journey-node" aria-hidden="true"><span>{step.number}</span><i /></div>
+          <small>{step.label}</small>
+          <div className={`wow-journey-visual is-${step.kind}`} aria-hidden="true"><i /><i /><i /><i /><b /><b /></div>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+        </article>)}
+        <div className="wow-journey-choice" aria-hidden="true"><span>Consegna</span><b>oppure</b><span>Ritiro</span></div>
+      </div>
       <div className="shell wow-story-close"><div><p className="eyebrow">Niente checkout automatico</p><h2>Una persona verifica.<br /><em>Tu scegli tranquillo.</em></h2></div><div><p><strong>La richiesta non equivale a una prenotazione.</strong> Disponibilità, compatibilità e dettagli operativi vengono controllati prima della proposta finale.</p><Link className="cta" href="/catalogo">Inizia dal catalogo <span aria-hidden="true">→</span></Link></div></div>
     </section>
-    <footer className="footer wow-footer"><div className="shell"><strong><span>ND</span>{publicName}</strong><p>Attrezzatura e servizi per eventi</p><small>Europe/Rome · Esperienze su misura</small></div></footer>
   </main>;
 }

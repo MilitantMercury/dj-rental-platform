@@ -24,6 +24,10 @@ Sono disponibili:
 - consultazione del preventivo pubblicato anche dal dettaglio della pratica owner;
 - profilo cliente privato o Partita IVA, con controlli sui dati fiscali e indirizzi strutturati;
 - tipologie di evento configurabili dal gestore e registro delle attività della pratica.
+- homepage pubblica con percorso visuale animato che sintetizza registrazione, composizione del setup, verifica e consegna o ritiro.
+- footer istituzionale condiviso dal layout e presente in fondo a tutte le pagine.
+- galleria immagini prodotto ordinabile dall’owner e navigabile nel catalogo con frecce, miniature, tastiera e swipe.
+- selezione editoriale “In copertina” di un solo prodotto e un solo servizio per la composizione cinematografica del catalogo pubblico; la sostituzione è atomica e richiede un contenuto attivo, pubblicato e illustrato.
 
 ## Stato operativo: E8–E10
 

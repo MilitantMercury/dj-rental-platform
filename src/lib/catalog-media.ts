@@ -1,7 +1,9 @@
 const MAX_CATALOG_IMAGE_BYTES = 5 * 1024 * 1024;
-const MIN_CATALOG_IMAGE_EDGE = 1200;
+const MIN_CATALOG_IMAGE_SHORT_EDGE = 800;
+const MIN_CATALOG_IMAGE_LONG_EDGE = 1200;
 const MAX_CATALOG_IMAGE_EDGE = 2560;
-export const CATALOG_IMAGE_TOO_SMALL_MESSAGE = "L’immagine è troppo piccola. Usa un file di almeno 1200 px sul lato più corto.";
+export const MAX_PRODUCT_GALLERY_IMAGES = 5;
+export const CATALOG_IMAGE_TOO_SMALL_MESSAGE = "L’immagine è troppo piccola. Usa un file di almeno 800 px sul lato corto e 1200 px sul lato lungo.";
 const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -10,6 +12,11 @@ const EXTENSIONS: Record<string, string> = {
 };
 
 export type CatalogMediaKind = "categories" | "products" | "services";
+
+export function nextProductImageSortOrder(images: ReadonlyArray<{ sort_order: number }>) {
+  if (images.length >= MAX_PRODUCT_GALLERY_IMAGES) return null;
+  return Math.max(0, ...images.map((image) => image.sort_order)) + 10;
+}
 
 export function validateCatalogImage(value: FormDataEntryValue | null) {
   if (!(value instanceof File) || value.size === 0) return { file: null, error: null } as const;
@@ -42,7 +49,9 @@ export async function optimizeCatalogImage(file: File) {
   const image = sharp(input, { failOn: "error", limitInputPixels: 40_000_000 });
   const metadata = await image.metadata();
   if (!metadata.width || !metadata.height) throw new Error("Immagine non decodificabile.");
-  if (Math.min(metadata.width, metadata.height) < MIN_CATALOG_IMAGE_EDGE) throw new Error(CATALOG_IMAGE_TOO_SMALL_MESSAGE);
+  const shortEdge = Math.min(metadata.width, metadata.height);
+  const longEdge = Math.max(metadata.width, metadata.height);
+  if (shortEdge < MIN_CATALOG_IMAGE_SHORT_EDGE || longEdge < MIN_CATALOG_IMAGE_LONG_EDGE) throw new Error(CATALOG_IMAGE_TOO_SMALL_MESSAGE);
   return image
     .rotate()
     .resize({ width: MAX_CATALOG_IMAGE_EDGE, height: MAX_CATALOG_IMAGE_EDGE, fit: "inside", withoutEnlargement: true })

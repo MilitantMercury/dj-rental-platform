@@ -17,11 +17,11 @@ describe("caricamento immagini catalogo", () => {
     expect(screen.getByText(/lettori vocali/i)).toBeVisible();
   });
 
-  it("presenta la sostituzione quando una immagine è già presente", () => {
+  it("presenta l’aggiunta alla galleria quando il prodotto ha già una copertina", () => {
     render(<CatalogImageUpload kind="products" entityId="10000000-0000-0000-0000-000000000001" label="Console" hasImage initialAlt="Console vista dall’alto" />);
-    expect(screen.getByLabelText(/^Sostituisci immagine/)).toBeRequired();
-    expect(screen.getByRole("button", { name: "Salva nuova immagine" })).toBeVisible();
-    expect(screen.queryByText(/galleria/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Aggiungi un’immagine alla galleria/)).toBeRequired();
+    expect(screen.getByRole("button", { name: "Aggiungi alla galleria" })).toBeVisible();
+    expect(screen.getByText(/massimo 5 immagini/i)).toBeVisible();
     expect(screen.getByLabelText(/^Descrizione dell’immagine/)).toHaveValue("Console vista dall’alto");
   });
 });

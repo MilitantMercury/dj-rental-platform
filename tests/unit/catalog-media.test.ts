@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { catalogImagePath, catalogMediaUrl, hasValidCatalogImageSignature, optimizeCatalogImage, validateCatalogImage } from "@/lib/catalog-media";
+import { catalogImagePath, catalogMediaUrl, hasValidCatalogImageSignature, nextProductImageSortOrder, optimizeCatalogImage, validateCatalogImage } from "@/lib/catalog-media";
 
 describe("media catalogo", () => {
+  it("accoda le immagini prodotto e blocca la galleria al limite", () => {
+    expect(nextProductImageSortOrder([])).toBe(10);
+    expect(nextProductImageSortOrder([{ sort_order: 20 }, { sort_order: 5 }, { sort_order: 40 }])).toBe(50);
+    expect(nextProductImageSortOrder(Array.from({ length: 5 }, (_, index) => ({ sort_order: index * 10 })))).toBeNull();
+  });
   it("accetta i formati immagine previsti e costruisce percorsi confinati", () => {
     const file = new File(["image"], "console.webp", { type: "image/webp" });
     const result = validateCatalogImage(file);
@@ -46,7 +51,16 @@ describe("media catalogo", () => {
     const source = await sharp({ create: { width: 1000, height: 1000, channels: 3, background: "#111" } }).png().toBuffer();
 
     await expect(optimizeCatalogImage(new File([source], "small.png", { type: "image/png" })))
-      .rejects.toThrow(/almeno 1200 px/);
+      .rejects.toThrow(/800 px.*1200 px/);
+  });
+  it("accetta immagini verticali ad alta risoluzione", async () => {
+    const sharp = (await import("sharp")).default;
+    const source = await sharp({ create: { width: 1080, height: 1920, channels: 3, background: "#111" } }).png().toBuffer();
+
+    const optimized = await optimizeCatalogImage(new File([source], "vertical.png", { type: "image/png" }));
+    const metadata = await sharp(optimized).metadata();
+    expect(metadata.width).toBe(1080);
+    expect(metadata.height).toBe(1920);
   });
   it("rifiuta file non immagine e file oltre 5 MB", () => {
     expect(validateCatalogImage(new File(["text"], "note.txt", { type: "text/plain" })).error).toMatch(/Formato/);

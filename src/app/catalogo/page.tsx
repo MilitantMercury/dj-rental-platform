@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AddToCart } from "@/components/add-to-cart";
 import { AmbientMotionCanvas } from "@/components/ambient-motion-canvas";
+import { CatalogCardGallery } from "@/components/catalog-card-gallery";
 import { catalogMediaUrl } from "@/lib/catalog-media";
 import { matchesCatalogSearch } from "@/lib/catalog-search";
 import { createClient } from "@/lib/supabase/server";
@@ -12,8 +13,8 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
   const supabase = await createClient();
   const [{ data: categories }, { data: products }, { data: services }, { data: productImages }] = await Promise.all([
     supabase.from("categories").select("id,name,slug,description,image_path,image_alt").eq("active", true).not("published_at", "is", null).order("sort_order").order("created_at"),
-    supabase.from("products").select("id,name,slug,description,included_accessories,category_id").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
-    supabase.from("services").select("id,name,slug,description,conditions,category_id,image_path,image_alt").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
+    supabase.from("products").select("id,name,slug,description,included_accessories,category_id,featured_on_home").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
+    supabase.from("services").select("id,name,slug,description,conditions,category_id,image_path,image_alt,featured_on_home").eq("active", true).not("published_at", "is", null).order("sort_order").order("name"),
     supabase.from("product_images").select("product_id,storage_path,alt_text,sort_order").order("sort_order").order("created_at"),
   ]);
   const { categoria, q } = await searchParams;
@@ -24,12 +25,14 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
   const categoryServices = selectedCategory ? (services ?? []).filter((item) => item.category_id === selectedCategory.id) : services ?? [];
   const filteredProducts = categoryProducts.filter(item => matchesCatalogSearch(item, searchQuery));
   const filteredServices = categoryServices.filter(item => matchesCatalogSearch(item, searchQuery));
+  const productGalleries = new Map<string, NonNullable<typeof productImages>>();
+  for (const image of productImages ?? []) productGalleries.set(image.product_id, [...(productGalleries.get(image.product_id) ?? []), image]);
   const primaryProductImage = new Map<string, NonNullable<typeof productImages>[number]>();
   for (const image of productImages ?? []) if (!primaryProductImage.has(image.product_id)) primaryProductImage.set(image.product_id, image);
   const resultCount = filteredProducts.length + filteredServices.length;
-  const heroProduct = (products ?? []).find((item) => primaryProductImage.has(item.id));
+  const heroProduct = (products ?? []).find((item) => item.featured_on_home && primaryProductImage.has(item.id)) ?? (products ?? []).find((item) => primaryProductImage.has(item.id));
   const heroProductMedia = heroProduct ? primaryProductImage.get(heroProduct.id) : undefined;
-  const heroService = (services ?? []).find((item) => item.image_path);
+  const heroService = (services ?? []).find((item) => item.featured_on_home && item.image_path) ?? (services ?? []).find((item) => item.image_path);
 
   return <main className="catalog-public">
     <header className="catalog-public-hero">
@@ -59,7 +62,7 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
         <div className="catalog-category-hero-content"><p className="eyebrow">Categoria selezionata</p><h2 id="catalog-category-title">{selectedCategory.name}</h2><p>{selectedCategory.description || "Una selezione professionale pensata per costruire il setup giusto per il tuo evento."}</p><div><span><strong>{resultCount}</strong> {resultCount === 1 ? "soluzione" : "soluzioni"}</span><Link href={searchQuery ? `/catalogo?q=${encodeURIComponent(searchQuery)}` : "/catalogo"}>Mostra tutto il catalogo <span aria-hidden="true">×</span></Link></div></div>
       </section>}
       {searchQuery && <aside className="catalog-active-search" aria-label="Ricerca attiva"><span>Risultati per</span><strong>“{searchQuery}”</strong><small>{resultCount} {resultCount === 1 ? "risultato" : "risultati"}</small></aside>}
-      <CatalogSection eyebrow="01 / Attrezzatura" title="Costruisci il tuo setup" count={filteredProducts.length} itemLabel="prodotti" empty="Nessuna attrezzatura disponibile in questa categoria.">{filteredProducts.map((item) => { const media = primaryProductImage.get(item.id); return <article className="catalog-product-card" key={item.id}><Link className="catalog-product-media" href={`/catalogo/prodotti/${item.slug}`} aria-label={`Scopri ${item.name}`}>{media ? <Image src={catalogMediaUrl(media.storage_path) ?? ""} alt={media.alt_text || item.name} fill sizes="(max-width: 720px) 100vw, 40vw" /> : <CatalogPlaceholder name={item.name} />}<span className="catalog-card-index">Attrezzatura</span></Link><div className="catalog-product-body"><small>{item.category_id ? categoryNames.get(item.category_id) : "Attrezzatura"}</small><h3>{item.name}</h3><p>{item.description || "Soluzione professionale configurabile per il tuo evento."}</p><div className="catalog-product-actions"><Link href={`/catalogo/prodotti/${item.slug}`}>Scopri i dettagli <span aria-hidden="true">↗</span></Link><AddToCart id={item.id} name={item.name} /></div></div></article>; })}</CatalogSection>
+      <CatalogSection eyebrow="01 / Attrezzatura" title="Costruisci il tuo setup" count={filteredProducts.length} itemLabel="prodotti" empty="Nessuna attrezzatura disponibile in questa categoria.">{filteredProducts.map((item) => { const gallery = productGalleries.get(item.id) ?? []; return <article className="catalog-product-card" key={item.id}><Link className="catalog-product-media" href={`/catalogo/prodotti/${item.slug}`} aria-label={`Scopri ${item.name}`}>{gallery.length ? <CatalogCardGallery images={gallery} productName={item.name} /> : <CatalogPlaceholder name={item.name} />}<span className="catalog-card-index">Attrezzatura</span></Link><div className="catalog-product-body"><small>{item.category_id ? categoryNames.get(item.category_id) : "Attrezzatura"}</small><h3>{item.name}</h3><p>{item.description || "Soluzione professionale configurabile per il tuo evento."}</p><div className="catalog-product-actions"><Link href={`/catalogo/prodotti/${item.slug}`}>Scopri i dettagli <span aria-hidden="true">↗</span></Link><AddToCart id={item.id} name={item.name} /></div></div></article>; })}</CatalogSection>
       <CatalogSection eyebrow="02 / Servizi" title="Completa l’esperienza" count={filteredServices.length} itemLabel="servizi" empty="Nessun servizio disponibile in questa categoria.">{filteredServices.map((item) => <article className="catalog-product-card catalog-service-card" key={item.id}><Link className="catalog-product-media" href={`/catalogo/servizi/${item.slug}`} aria-label={`Scopri ${item.name}`}>{item.image_path ? <Image src={catalogMediaUrl(item.image_path) ?? ""} alt={item.image_alt || item.name} fill sizes="(max-width: 720px) 100vw, 40vw" /> : <CatalogPlaceholder name={item.name} />}<span className="catalog-card-index">Servizio</span></Link><div className="catalog-product-body"><small>{item.category_id ? categoryNames.get(item.category_id) : "Servizio"}</small><h3>{item.name}</h3><p>{item.description || "Supporto professionale definito insieme al gestore."}</p><div className="catalog-product-actions"><Link href={`/catalogo/servizi/${item.slug}`}>Scopri i dettagli <span aria-hidden="true">↗</span></Link><AddToCart id={item.id} name={item.name} type="service" /></div></div></article>)}</CatalogSection>
     </div>
   </main>;

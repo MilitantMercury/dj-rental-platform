@@ -1,16 +1,15 @@
-import Image from "next/image";
 import Link from "next/link";
 import { AddToCart } from "@/components/add-to-cart";
 import { AmbientMotionCanvas } from "@/components/ambient-motion-canvas";
-import { catalogMediaUrl } from "@/lib/catalog-media";
+import { ProductGallery } from "@/components/product-gallery";
 
 type CatalogProductDetailProps = {
   product: { id: string; name: string; description: string | null; included_accessories: string | null };
   categoryName: string | null;
-  image: { storage_path: string; alt_text: string | null } | null;
+  images: { id: string; storage_path: string; alt_text: string | null }[];
 };
 
-export function CatalogProductDetail({ product, categoryName, image }: CatalogProductDetailProps) {
+export function CatalogProductDetail({ product, categoryName, images }: CatalogProductDetailProps) {
   const description = !product.description || /^descrizione\b/i.test(product.description.trim()) ? "Attrezzatura professionale selezionata e configurata in base alle esigenze del tuo evento." : product.description;
   const included = product.included_accessories?.trim() || null;
   return <main className="catalog-public-detail">
@@ -21,7 +20,7 @@ export function CatalogProductDetail({ product, categoryName, image }: CatalogPr
         <span>Attrezzatura / {categoryName ?? "Senza categoria"}</span>
       </nav>
       <article className="catalog-owner-preview-card is-products catalog-public-detail-card">
-        <div className="catalog-owner-preview-media">{image ? <Image src={catalogMediaUrl(image.storage_path) ?? ""} alt={image.alt_text || product.name} fill priority quality={92} sizes="(max-width: 800px) 100vw, 52vw" /> : <span>{product.name.slice(0, 2).toUpperCase()}</span>}<div className="catalog-detail-media-caption"><small>Selezione professionale</small><strong>{categoryName ?? "Attrezzatura"}</strong></div></div>
+        <ProductGallery images={images} productName={product.name} categoryName={categoryName ?? "Attrezzatura"} />
         <div className="catalog-owner-preview-copy">
           <div className="catalog-owner-preview-meta"><span>Prodotto</span><span>{categoryName ?? "Attrezzatura"}</span></div>
           <p className="catalog-detail-kicker">Il tuo setup, senza compromessi.</p>

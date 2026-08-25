@@ -10,5 +10,7 @@ describe("messaggi applicativi", () => {
   it("distingue gli errori dagli esiti positivi", () => {
     expect(appMessageTone("Immagine ottimizzata e caricata.")).toBe("success");
     expect(appMessageTone("pubblicazione-non-riuscita")).toBe("error");
+    expect(appMessageTone("L’immagine è troppo piccola. Usa un file di almeno 800 px sul lato corto e 1200 px sul lato lungo.")).toBe("error");
+    expect(appMessageTone("La galleria può contenere al massimo 5 immagini.")).toBe("error");
   });
 });

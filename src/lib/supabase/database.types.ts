@@ -415,6 +415,7 @@ export type Database = {
           category_id: string | null
           created_at: string
           description: string
+          featured_on_home: boolean
           id: string
           included_accessories: string
           name: string
@@ -430,6 +431,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string
+          featured_on_home?: boolean
           id?: string
           included_accessories?: string
           name: string
@@ -445,6 +447,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string
+          featured_on_home?: boolean
           id?: string
           included_accessories?: string
           name?: string
@@ -945,6 +948,7 @@ export type Database = {
           conditions: string
           created_at: string
           description: string
+          featured_on_home: boolean
           id: string
           image_alt: string
           image_path: string | null
@@ -961,6 +965,7 @@ export type Database = {
           conditions?: string
           created_at?: string
           description?: string
+          featured_on_home?: boolean
           id?: string
           image_alt?: string
           image_path?: string | null
@@ -977,6 +982,7 @@ export type Database = {
           conditions?: string
           created_at?: string
           description?: string
+          featured_on_home?: boolean
           id?: string
           image_alt?: string
           image_path?: string | null
@@ -1066,6 +1072,10 @@ export type Database = {
       }
       reorder_product_images: {
         Args: { ordered_image_ids: string[]; target_product_id: string }
+        Returns: undefined
+      }
+      set_catalog_home_feature: {
+        Args: { target_featured: boolean; target_id: string; target_type: string }
         Returns: undefined
       }
       confirm_request_if_available: {

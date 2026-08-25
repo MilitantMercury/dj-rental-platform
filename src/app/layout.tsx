@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/homepage-wow.css";
 import "../styles/catalog-wow.css";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { FormFeedbackBridge } from "@/components/form-feedback-bridge";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,7 +35,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const role = staff?.role === "owner" ? "Owner" : staff?.role === "collaborator" ? "Collaboratore" : user ? "Cliente" : undefined;
   return (
     <html lang="it" data-scroll-behavior="smooth" className="h-full antialiased">
-      <body className="flex min-h-full flex-col"><FormFeedbackBridge /><SiteHeader brandName={publicSettings?.[0]?.public_name} userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} unreadNotifications={notificationResult.count ?? 0} />{children}</body>
+      <body className="flex min-h-full flex-col"><FormFeedbackBridge /><SiteHeader brandName={publicSettings?.[0]?.public_name} userName={staff?.display_name ?? customerName ?? user?.email ?? undefined} role={role} unreadNotifications={notificationResult.count ?? 0} />{children}<SiteFooter brandName={publicSettings?.[0]?.public_name} /></body>
     </html>
   );
 }

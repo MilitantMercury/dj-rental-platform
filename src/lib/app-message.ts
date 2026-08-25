@@ -11,7 +11,7 @@ const messageCopy: Record<string, string> = {
   "allegato-salvato": "Allegato salvato correttamente.",
 };
 
-const errorPattern = /(?:errore|non[- ]|non$|invalid|insufficient|negat|impossibile|mancant|incomplet|fallit|controlla|scegli|riprova|soltanto)/i;
+const errorPattern = /(?:errore|non[- ]|non$|invalid|insufficient|negat|impossibile|mancant|incomplet|fallit|controlla|scegli|riprova|soltanto|tropp[oaie]|supera(?:to)?|al massimo|obbligator|scadut[oaie])/i;
 
 export function formatAppMessage(message: string) {
   const value = message.trim();

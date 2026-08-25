@@ -48,8 +48,8 @@ export async function toggleCatalogItem(data: FormData) {
   const updateError = table === "categories"
     ? (await supabase.from("categories").update({ active: !active }).eq("id", id)).error
     : table === "products"
-      ? (await supabase.from("products").update({ active: !active }).eq("id", id)).error
-      : (await supabase.from("services").update({ active: !active }).eq("id", id)).error;
+      ? (await supabase.from("products").update({ active: !active, ...(active ? { featured_on_home: false } : {}) }).eq("id", id)).error
+      : (await supabase.from("services").update({ active: !active, ...(active ? { featured_on_home: false } : {}) }).eq("id", id)).error;
   if (updateError) error("Stato non aggiornato.");
   revalidatePath("/area-riservata/catalogo");
 }
@@ -63,8 +63,8 @@ export async function toggleCatalogPublication(data: FormData) {
   const updateError = table === "categories"
     ? (await supabase.from("categories").update(values).eq("id", id)).error
     : table === "products"
-      ? (await supabase.from("products").update(values).eq("id", id)).error
-      : (await supabase.from("services").update(values).eq("id", id)).error;
+      ? (await supabase.from("products").update({ ...values, ...(published ? { featured_on_home: false } : {}) }).eq("id", id)).error
+      : (await supabase.from("services").update({ ...values, ...(published ? { featured_on_home: false } : {}) }).eq("id", id)).error;
   if (updateError) error("Pubblicazione non aggiornata.");
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
@@ -81,6 +81,19 @@ export async function moveCatalogItem(data: FormData) {
   if (moveError) error("Ordinamento non aggiornato.");
   revalidatePath("/catalogo");
   revalidatePath("/area-riservata/catalogo");
+}
+
+export async function toggleCatalogHomeFeature(data: FormData) {
+  const supabase = await requireOwner();
+  const targetType = text(data, "table");
+  const targetId = text(data, "id");
+  const targetFeatured = text(data, "featured") !== "true";
+  if (!["products", "services"].includes(targetType) || !/^[0-9a-f-]{36}$/.test(targetId)) error("Contenuto in copertina non valido.");
+  const { error: featureError } = await supabase.rpc("set_catalog_home_feature", { target_type: targetType, target_id: targetId, target_featured: targetFeatured });
+  if (featureError) error("Copertina non aggiornata: pubblica e attiva il contenuto e aggiungi almeno un’immagine.");
+  revalidatePath("/catalogo");
+  revalidatePath("/area-riservata/catalogo");
+  error(targetFeatured ? "Contenuto impostato in copertina." : "Contenuto rimosso dalla copertina.");
 }
 export async function updateCatalogItem(data: FormData) {
   const supabase = await requireOwner();

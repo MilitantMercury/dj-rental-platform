@@ -1,5 +1,7 @@
 # Noleggio DJ
 
+**Versione stabile:** 1.0.0
+
 Piattaforma single-tenant per catalogo, richieste, preventivi e gestione del noleggio di attrezzatura DJ. Il sistema non è un e-commerce: una richiesta non è una prenotazione e la conferma definitiva richiede un’azione del gestore.
 
 ## Stato del progetto

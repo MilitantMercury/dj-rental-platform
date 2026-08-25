@@ -17,11 +17,11 @@ insert into public.products (id, name, slug, description, specifications, includ
   ('31000000-0000-0000-0000-000000000001', 'Console Uno', 'console-uno', '', '{}', '', true, now()),
   ('31000000-0000-0000-0000-000000000002', 'Console Due', 'console-due', '', '{}', '', true, now());
 insert into public.product_images (product_id, storage_path, alt_text, sort_order) values
-  ('31000000-0000-0000-0000-000000000001', 'products/31000000-0000-0000-0000-000000000001/uno.webp', 'Uno', 0),
-  ('31000000-0000-0000-0000-000000000002', 'products/31000000-0000-0000-0000-000000000002/due.webp', 'Due', 0);
+  ('31000000-0000-0000-0000-000000000001', 'products/31000000-0000-0000-0000-000000000001/33000000-0000-0000-0000-000000000001.webp', 'Uno', 0),
+  ('31000000-0000-0000-0000-000000000002', 'products/31000000-0000-0000-0000-000000000002/33000000-0000-0000-0000-000000000002.webp', 'Due', 0);
 insert into public.services (id, name, slug, description, conditions, active, published_at, image_path) values
-  ('32000000-0000-0000-0000-000000000001', 'DJ Uno', 'dj-uno', '', '', true, now(), 'services/32000000-0000-0000-0000-000000000001/uno.webp'),
-  ('32000000-0000-0000-0000-000000000002', 'DJ Due', 'dj-due', '', '', true, now(), 'services/32000000-0000-0000-0000-000000000002/due.webp');
+  ('32000000-0000-0000-0000-000000000001', 'DJ Uno', 'dj-uno', '', '', true, now(), 'services/32000000-0000-0000-0000-000000000001/34000000-0000-0000-0000-000000000001.webp'),
+  ('32000000-0000-0000-0000-000000000002', 'DJ Due', 'dj-due', '', '', true, now(), 'services/32000000-0000-0000-0000-000000000002/34000000-0000-0000-0000-000000000002.webp');
 
 select lives_ok($$select public.set_catalog_home_feature('products', '31000000-0000-0000-0000-000000000001', true)$$, 'L owner seleziona un prodotto');
 select lives_ok($$select public.set_catalog_home_feature('products', '31000000-0000-0000-0000-000000000002', true)$$, 'Un nuovo prodotto sostituisce il precedente');

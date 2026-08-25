@@ -6,7 +6,7 @@ export function CatalogImageUpload({ kind, entityId, label, hasImage = false, in
   return <form action={uploadCatalogImage} className="catalog-image-form">
     <input type="hidden" name="kind" value={kind} />
     <input type="hidden" name="entityId" value={entityId} />
-    <label><span>{hasImage ? "Sostituisci immagine" : `Immagine di ${label}`}</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /><small>JPEG, PNG, WebP o AVIF · massimo 5 MB</small></label>
+    <label><span>{hasImage ? "Sostituisci immagine" : `Immagine di ${label}`}</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /><small>JPEG, PNG, WebP o AVIF · massimo 5 MB · almeno 1200 px sul lato più corto</small></label>
     <label><span>Descrizione dell’immagine (testo alternativo)</span><input name="altText" maxLength={250} defaultValue={initialAlt || label} aria-describedby={altHelpId} /><small id={altHelpId}>Descrive l’immagine per chi usa lettori vocali e compare se il file non si carica. Puoi modificarla, ad esempio: “{label} vista frontale”.</small></label>
     <button type="submit">{hasImage ? "Salva nuova immagine" : "Carica immagine"}</button>
   </form>;

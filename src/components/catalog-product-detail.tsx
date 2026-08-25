@@ -21,7 +21,7 @@ export function CatalogProductDetail({ product, categoryName, image }: CatalogPr
         <span>Attrezzatura / {categoryName ?? "Senza categoria"}</span>
       </nav>
       <article className="catalog-owner-preview-card is-products catalog-public-detail-card">
-        <div className="catalog-owner-preview-media">{image ? <Image src={catalogMediaUrl(image.storage_path) ?? ""} alt={image.alt_text || product.name} fill priority sizes="(max-width: 800px) 100vw, 52vw" /> : <span>{product.name.slice(0, 2).toUpperCase()}</span>}<div className="catalog-detail-media-caption"><small>Selezione professionale</small><strong>{categoryName ?? "Attrezzatura"}</strong></div></div>
+        <div className="catalog-owner-preview-media">{image ? <Image src={catalogMediaUrl(image.storage_path) ?? ""} alt={image.alt_text || product.name} fill priority quality={92} sizes="(max-width: 800px) 100vw, 52vw" /> : <span>{product.name.slice(0, 2).toUpperCase()}</span>}<div className="catalog-detail-media-caption"><small>Selezione professionale</small><strong>{categoryName ?? "Attrezzatura"}</strong></div></div>
         <div className="catalog-owner-preview-copy">
           <div className="catalog-owner-preview-meta"><span>Prodotto</span><span>{categoryName ?? "Attrezzatura"}</span></div>
           <p className="catalog-detail-kicker">Il tuo setup, senza compromessi.</p>

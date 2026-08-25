@@ -24,7 +24,7 @@ export default async function Home() {
 export function HomeView({ featured = [], intro = "Scegli attrezzatura e servizi professionali. Raccontaci il tuo evento e ricevi una proposta costruita davvero sulle tue esigenze.", publicName = "Noleggio DJ" }: { featured?: FeaturedProduct[]; intro?: string; publicName?: string }) {
   return <main>
     <section className="hero wow-hero" aria-labelledby="hero-title">
-      <div className="wow-hero-media" aria-hidden="true"><Image src="/images/homepage-dj-cinema.webp" alt="" fill priority sizes="100vw" /></div>
+      <div className="wow-hero-media" aria-hidden="true"><Image src="/images/homepage-dj-sharp-4k.webp" alt="" fill priority quality={92} sizes="100vw" /></div>
       <div className="wow-hero-shade" aria-hidden="true" />
       <div className="wow-hero-beam wow-hero-beam-one" aria-hidden="true" />
       <div className="wow-hero-beam wow-hero-beam-two" aria-hidden="true" />

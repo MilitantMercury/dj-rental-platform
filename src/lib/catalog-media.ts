@@ -1,5 +1,7 @@
 const MAX_CATALOG_IMAGE_BYTES = 5 * 1024 * 1024;
-const MAX_CATALOG_IMAGE_EDGE = 1920;
+const MIN_CATALOG_IMAGE_EDGE = 1200;
+const MAX_CATALOG_IMAGE_EDGE = 2560;
+export const CATALOG_IMAGE_TOO_SMALL_MESSAGE = "L’immagine è troppo piccola. Usa un file di almeno 1200 px sul lato più corto.";
 const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -40,10 +42,11 @@ export async function optimizeCatalogImage(file: File) {
   const image = sharp(input, { failOn: "error", limitInputPixels: 40_000_000 });
   const metadata = await image.metadata();
   if (!metadata.width || !metadata.height) throw new Error("Immagine non decodificabile.");
+  if (Math.min(metadata.width, metadata.height) < MIN_CATALOG_IMAGE_EDGE) throw new Error(CATALOG_IMAGE_TOO_SMALL_MESSAGE);
   return image
     .rotate()
     .resize({ width: MAX_CATALOG_IMAGE_EDGE, height: MAX_CATALOG_IMAGE_EDGE, fit: "inside", withoutEnlargement: true })
-    .webp({ quality: 82, effort: 4 })
+    .webp({ quality: 90, effort: 5, smartSubsample: true })
     .toBuffer();
 }
 export function catalogImagePath(kind: CatalogMediaKind, entityId: string, extension: string, imageId = crypto.randomUUID()) {

@@ -28,6 +28,7 @@ Sono disponibili:
 - footer istituzionale condiviso dal layout e presente in fondo a tutte le pagine.
 - galleria immagini prodotto ordinabile dall’owner e navigabile nel catalogo con frecce, miniature, tastiera e swipe.
 - selezione editoriale “In copertina” di un solo prodotto e un solo servizio per la composizione cinematografica del catalogo pubblico; la sostituzione è atomica e richiede un contenuto attivo, pubblicato e illustrato.
+- Vercel Web Analytics integrato nel layout globale per misurare visite e visualizzazioni delle pagine nell’ambiente distribuito.
 
 ## Stato operativo: E8–E10
 

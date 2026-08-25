@@ -11,6 +11,7 @@ Questo registro conserva decisioni e assunzioni che precisano la specifica. Le d
 | D-003 | 2026-08-13 | Stack: Next.js 16, React, Tailwind CSS, Supabase e Vercel. | Baseline tecnica approvata. |
 | D-004 | 2026-08-13 | Ruoli fissi iniziali: `customer`, `collaborator`, `owner`. | Coprono l'MVP; i permessi granulari sono evolutivi. |
 | D-024 | 2026-08-25 | L’owner sceglie al massimo un prodotto e un servizio “In copertina” per la hero del catalogo. | La sostituzione è atomica; sono ammessi solo contenuti attivi, pubblicati e con immagine. Il pubblico usa un fallback illustrato durante la configurazione iniziale. |
+| D-025 | 2026-08-25 | Le visite e le visualizzazioni pagina vengono rilevate tramite Vercel Web Analytics nel layout globale. | Offre metriche essenziali per il periodo di test senza duplicare il tracciamento nelle singole pagine. |
 | D-005 | 2026-08-13 | Il collaboratore non vede prezzi, pagamenti o note economiche. | Minimo privilegio e separazione delle responsabilità. |
 | D-006 | 2026-08-13 | Le revisioni pubblicate dei preventivi sono immutabili; ogni modifica crea una revisione. | Ricostruibilità del contenuto accettato. |
 | D-007 | 2026-08-13 | Nessun override manuale della disponibilità nell'MVP. | Impedisce overbooking non tracciabile. |

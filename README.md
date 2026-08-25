@@ -29,6 +29,8 @@ Sono disponibili:
 - galleria immagini prodotto ordinabile dall’owner e navigabile nel catalogo con frecce, miniature, tastiera e swipe.
 - selezione editoriale “In copertina” di un solo prodotto e un solo servizio per la composizione cinematografica del catalogo pubblico; la sostituzione è atomica e richiede un contenuto attivo, pubblicato e illustrato.
 - Vercel Web Analytics integrato nel layout globale per misurare visite e visualizzazioni delle pagine nell’ambiente distribuito.
+- Grafana Cloud collegato alla Metrics API Supabase per osservare salute, connessioni e prestazioni del database distribuito.
+- privilegi Supabase delle funzioni `SECURITY DEFINER` ridotti al minimo, funzioni trigger non esposte via API e bucket pubblico del catalogo non enumerabile.
 
 ## Stato operativo: E8–E10
 
@@ -81,3 +83,6 @@ npm run build
 ```
 
 La specifica approvata si trova in `docs/Noleggio_DJ_Specifica_Tecnica_Fase_0.md`; le decisioni in `docs/DECISIONS.md`.
+
+Le regole di hardening e la configurazione Auth manuale sono documentate in `docs/SUPABASE_SECURITY.md`.
+La copertura di monitoraggio Vercel/Grafana è descritta in `docs/OBSERVABILITY.md`.
